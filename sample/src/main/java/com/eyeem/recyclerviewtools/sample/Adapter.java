@@ -47,7 +47,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
    }
 
    public int addEnd() {
-      int val = random.nextInt(5) + 4;
+      int val = random.nextInt(3) + 3;
       for (int i = 0; i < val; i++)
          data.add(new Data(LOREM_IPSUM[random.nextInt(LOREM_IPSUM.length - 1)], IMAGES[random.nextInt(IMAGES.length - 1)]));
       return val;
@@ -59,7 +59,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
 
    public Adapter() {
       data = new ArrayList<>();
-      for (int i = 0; i < random.nextInt(10) + 25; i++) {
+      for (int i = 0; i < random.nextInt(10) + 35; i++) {
          data.add(new Data(LOREM_IPSUM[i], IMAGES[i]));
       }
    }
