@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <dimen name="thumb_size">60dp</dimen>
+   <dimen name="header_height">200dp</dimen>
+   <dimen name="header_min_size">48dp</dimen>
+</resources>
