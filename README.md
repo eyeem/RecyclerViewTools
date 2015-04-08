@@ -31,8 +31,12 @@ wrapAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
 ### Sections
 pass a `AbstractSectionAdapter` when creating the wrap adapter. The section adapter API is mirrored from RecyclerView (`onCreateViewHolder` and `onBindViewHolder`). Feel free to extend from the SimpleSectionAdapter.
 ```Java
-SimpleSectionAdapter sections = new SimpleSectionAdapter(new int[]{0, 6, 9, 14, 19, 23}) { // those are the section positions
-   // override here onCreateSectionViewHolder and onBindSectionView
+SimpleSectionAdapter sections =
+    new SimpleSectionAdapter(
+        new int[]{0, 6, 9, 14, 19, 23}) { // those are the section positions
+
+    // override here onCreateSectionViewHolder and onBindSectionView
+    
 }
 WrapAdapter wrapAdapter = new WrapAdapter(adapter, sections);
 ```

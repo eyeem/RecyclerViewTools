@@ -50,8 +50,18 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       scrollListener.setPicassoTag(PICASSO_TAG); // calls Picasso.pauseTag/resumeTag automatically
       recycler.setOnScrollListener(scrollListener);
 
-      WrapAdapter wrapAdapter = new WrapAdapter(adapter,
-         new TitleAdapter(new int[]{0, 6, 9, 14, 19, 23}));
+      WrapAdapter wrapAdapter;
+
+      // example with sections
+      if (true) {
+         wrapAdapter = new WrapAdapter(adapter,
+            new TitleAdapter(new int[]{0, 6, 9, 14, 19, 23}));
+      }
+
+      // example without any section
+      else {
+         wrapAdapter = new WrapAdapter(adapter);
+      }
 
       wrapAdapter.setOnItemClickListenerDetector(
          new OnItemClickListenerDetector(recycler, this)); // simple `onItemClick` for RecyclerView
