@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by budius on 01.04.15.
  */
-public class WrapSectionAdapter
+public class WrapAdapter
    extends RecyclerView.Adapter {
 
    private static final int MAX_CACHE_SIZE = 666; // TODO: what's a sensible value?
@@ -31,11 +31,11 @@ public class WrapSectionAdapter
    private final AbstractSectionAdapter sections;
    private OnItemClickListenerDetector onItemClickListenerDetector;
 
-   public WrapSectionAdapter(RecyclerView.Adapter wrappedAdapter) {
+   public WrapAdapter(RecyclerView.Adapter wrappedAdapter) {
       this(wrappedAdapter, new EmptySectionAdapter());
    }
 
-   public WrapSectionAdapter(RecyclerView.Adapter wrappedAdapter, AbstractSectionAdapter sectionAdapter) {
+   public WrapAdapter(RecyclerView.Adapter wrappedAdapter, AbstractSectionAdapter sectionAdapter) {
 
       if (wrappedAdapter == null || sectionAdapter == null)
          throw new IllegalArgumentException("wrappedAdapter and sectionAdapter cannot be null");
@@ -380,7 +380,7 @@ public class WrapSectionAdapter
     * take the whole `spanCount` and other adapter positions are 1 span each
     *
     * @param spanCount the number of spans
-    * @return a new GridLayoutManager.SpanSizeLookup to be used with this WrapSectionAdapter
+    * @return a new GridLayoutManager.SpanSizeLookup to be used with this WrapAdapter
     */
    public GridLayoutManager.SpanSizeLookup createSpanSizeLookup(int spanCount) {
       return new SectionSpanSizeLookup(null, spanCount);
@@ -392,7 +392,7 @@ public class WrapSectionAdapter
     *
     * @param wrap      the SpanSizeLookup to wrap from
     * @param spanCount the number of spans
-    * @return a new GridLayoutManager.SpanSizeLookup to be used with this WrapSectionAdapter
+    * @return a new GridLayoutManager.SpanSizeLookup to be used with this WrapAdapter
     */
    public GridLayoutManager.SpanSizeLookup createSpanSizeLookup(GridLayoutManager.SpanSizeLookup wrap, int spanCount) {
       return new SectionSpanSizeLookup(wrap, spanCount);

@@ -62,18 +62,18 @@ public abstract class AbstractSectionAdapter<VH extends RecyclerView.ViewHolder>
    public abstract int getSectionCount();
 
    /**
-    * Informs the WrapSectionAdapter of the adapter position of each section.
+    * Informs the WrapAdapter of the adapter position of each section.
     * Must return {@link AbstractSectionAdapter#NOT_A_SECTION NOT_A_SECTION}
     * if the queried position is not a section.
     *
-    * @param position the position in the WrapSectionAdapter
+    * @param position the position in the WrapAdapter
     * @return the index of the section for that position or NOT_A_SECTION
     */
    public abstract int getSectionIndex(int position);
 
    /**
     * Inverse of {@link #getSectionIndex(int)}. That's called during `notify_` events to offset
-    * the notified data to the {@link com.eyeem.recyclerviewtools.adapter.WrapSectionAdapter} position.
+    * the notified data to the {@link com.eyeem.recyclerviewtools.adapter.WrapAdapter} position.
     *
     * @param index the index of the section
     * @return the position of the section within the wrapped adapter.
@@ -82,7 +82,7 @@ public abstract class AbstractSectionAdapter<VH extends RecyclerView.ViewHolder>
 
    /**
     * Possible optimisation. Calls to {@link #getSectionIndex(int)} and {@link #getSectionPosition(int)} are
-    * LruCached inside the {@link com.eyeem.recyclerviewtools.adapter.WrapSectionAdapter}
+    * LruCached inside the {@link com.eyeem.recyclerviewtools.adapter.WrapAdapter}
     * Returning `false` will disable the caching. Only do this if you're sure that your
     * implementation can reliably return values faster than an {@link android.util.LruCache}
     *
@@ -96,6 +96,6 @@ public abstract class AbstractSectionAdapter<VH extends RecyclerView.ViewHolder>
     * Value to be returned from {@link com.eyeem.recyclerviewtools.adapter.AbstractSectionAdapter#getSectionIndex(int)}
     * when the position is not a section
     */
-   public static final int NOT_A_SECTION = WrapSectionAdapter.NOT_A_SECTION;
+   public static final int NOT_A_SECTION = WrapAdapter.NOT_A_SECTION;
 
 }

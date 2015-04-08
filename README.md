@@ -21,11 +21,11 @@ Seriously couldn't be simpler:
 ```Java
 // create your recycler adapter normally, then wrap it on the wrapper
 adapter = new Adapter();
-WrapSectionAdapter wrapSectionAdapter = new WrapSectionAdapter(adapter);
+WrapAdapter wrapAdapter = new WrapAdapter(adapter);
 // add headers & footers
-wrapSectionAdapter.addHeader(header = inflater.inflate(R.layout.overlay_background, recycler, false));
-wrapSectionAdapter.addHeader(inflater.inflate(R.layout.header, recycler, false));
-wrapSectionAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
+wrapAdapter.addHeader(header = inflater.inflate(R.layout.overlay_background, recycler, false));
+wrapAdapter.addHeader(inflater.inflate(R.layout.header, recycler, false));
+wrapAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
 ```
 
 ### Sections
@@ -34,7 +34,7 @@ pass a `AbstractSectionAdapter` when creating the wrap adapter. The section adap
 SimpleSectionAdapter sections = new SimpleSectionAdapter(new int[]{0, 6, 9, 14, 19, 23}) { // those are the section positions
    // override here onCreateSectionViewHolder and onBindSectionView
 }
-WrapSectionAdapter wrapSectionAdapter = new WrapSectionAdapter(adapter, sections);
+WrapAdapter wrapAdapter = new WrapAdapter(adapter, sections);
 ```
 
 ### Notify data changed
@@ -57,7 +57,7 @@ scrollListener.setPicassoTag(PICASSO_TAG);
 ```
 
 ### OnItemClickListener
-If using a `WrapSectionAdapter` you can just pass to a normal setter, or for `RecyclerView.Adapter` just call `.setOnClickListener(detector);` during `onCreateViewHolder` on every `View`.
+If using a `WrapAdapter` you can just pass to a normal setter, or for `RecyclerView.Adapter` just call `.setOnClickListener(detector);` during `onCreateViewHolder` on every `View`.
 
 `position` and `id` get automatically offset, to exclude header, footer and section clicks.
 ```Java
@@ -77,7 +77,7 @@ Auto generate or wrap the SpanSizeLookup. Default uses 1 span per item. Header, 
 
 ```Java
 gridLayoutManager.setSpanSizeLookup(
-  wrapSectionAdapter.createSpanSizeLookup(spanCount)); // auto-generate SpanSizeLookup
+  wrapAdapter.createSpanSizeLookup(spanCount)); // auto-generate SpanSizeLookup
 ```
 
 ### Floating views and quick return headers
@@ -140,6 +140,6 @@ scrollListener.addListener(
 # Caveats
 
 the methods `notifyItem*` from `RecyclerView.Adapter` were made `final` by Google.
-So it is impossible to override them on the `WrapSectionAdapter` to properly adjust their positions before passing to the super class.
+So it is impossible to override them on the `WrapAdapter` to properly adjust their positions before passing to the super class.
 
-So, DO NOT use any `notify` method from `WrapSectionAdapter`. Just call from the original adapter.
+So, DO NOT use any `notify` method from `WrapAdapter`. Just call from the original adapter.

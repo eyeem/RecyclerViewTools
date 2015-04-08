@@ -16,7 +16,7 @@ import android.widget.Toast;
 import com.eyeem.recyclerviewtools.OnScrollListener;
 import com.eyeem.recyclerviewtools.RecyclerViewTools;
 import com.eyeem.recyclerviewtools.adapter.OnItemClickListenerDetector;
-import com.eyeem.recyclerviewtools.adapter.WrapSectionAdapter;
+import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
 import com.eyeem.recyclerviewtools.scroll_controller.Builder;
 
 import butterknife.ButterKnife;
@@ -50,10 +50,10 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       scrollListener.setPicassoTag(PICASSO_TAG); // calls Picasso.pauseTag/resumeTag automatically
       recycler.setOnScrollListener(scrollListener);
 
-      WrapSectionAdapter wrapSectionAdapter = new WrapSectionAdapter(adapter,
+      WrapAdapter wrapAdapter = new WrapAdapter(adapter,
          new TitleAdapter(new int[]{0, 6, 9, 14, 19, 23}));
 
-      wrapSectionAdapter.setOnItemClickListenerDetector(
+      wrapAdapter.setOnItemClickListenerDetector(
          new OnItemClickListenerDetector(recycler, this)); // simple `onItemClick` for RecyclerView
 
       // example using `LinearLayoutManager`
@@ -66,7 +66,7 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
          int numberOfColumns = 2;
          GridLayoutManager gridLayoutManager = new GridLayoutManager(this, numberOfColumns);
          gridLayoutManager.setSpanSizeLookup(
-            wrapSectionAdapter.createSpanSizeLookup(numberOfColumns)); // auto-generate SpanSizeLookup
+            wrapAdapter.createSpanSizeLookup(numberOfColumns)); // auto-generate SpanSizeLookup
          recycler.setLayoutManager(gridLayoutManager);
          adapter.vertical = true;
       }
@@ -74,11 +74,11 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       // header and footers
       LayoutInflater inflater = LayoutInflater.from(this);
       View header;
-      wrapSectionAdapter.addHeader(header = inflater.inflate(R.layout.overlay_background, recycler, false));
-      wrapSectionAdapter.addHeader(inflater.inflate(R.layout.header, recycler, false));
-      wrapSectionAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
+      wrapAdapter.addHeader(header = inflater.inflate(R.layout.overlay_background, recycler, false));
+      wrapAdapter.addHeader(inflater.inflate(R.layout.header, recycler, false));
+      wrapAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
 
-      recycler.setAdapter(wrapSectionAdapter);
+      recycler.setAdapter(wrapAdapter);
 
       // configure the floating header and FAB
       int example = 0;

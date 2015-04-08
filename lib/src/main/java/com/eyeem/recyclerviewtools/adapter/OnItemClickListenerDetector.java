@@ -41,8 +41,8 @@ public class OnItemClickListenerDetector implements View.OnClickListener {
 
       RecyclerView.Adapter adapter = recyclerView.getAdapter();
 
-      if (ignoreExtras && adapter instanceof WrapSectionAdapter) {
-         WrapSectionAdapter a = (WrapSectionAdapter) adapter;
+      if (ignoreExtras && adapter instanceof WrapAdapter) {
+         WrapAdapter a = (WrapAdapter) adapter;
          position = a.recyclerToWrappedPosition.get(position);
       }
 
