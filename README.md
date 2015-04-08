@@ -1,31 +1,46 @@
 # RecyclerViewTools
 Collection of tools for RecyclerView.
 
-This collection was developed with two main goals: easy to code (very simple API) & robust (it works).
+This collection was developed with two main goals: easy to code (very simple API) & robust (it really works).
 Includes:
 
- - Header and Footer for `RecyclerView`. Can be extended or wrapped and works with `GridLayoutManager`
- - Multi-scroll listener. One scroll listener to dispatch to several listeners
+ - Headers, Footers & Sections for `RecyclerView`. Based on a common "wrap" adapter.
+ - Multi-scroll listener. One scroll listener dispatch to several listeners
  - Animation controllers for common material patterns like:
   - FloatingActionButton (FAB)
   - ToolBar
   - QuickReturn header
  - Extended `SwipeRefreshLayout` to be able to use it with quick return headers
  - ViewVisibility detector. That can be used in parallax effect.
- - Implementation of OnItemClickListener for RecyclerView that auto detect headers and footers.
+ - Implementation of OnItemClickListener for RecyclerView (works standalone or in conjunction with headers, footers & sections).
 
 # Usage
-Seriously couldn't be simpler...
+Seriously couldn't be simpler:
 
-
-### Headers and Footers
-adapter with header and footer
+### Headers & Footers
 ```Java
 // create your recycler adapter normally, then wrap it on the wrapper
-AbstractHeaderFooterRecyclerAdapter adapter = new WrapHeaderFooterAdapter<>(new Adapter());
-adapter.addHeader(inflater.inflate(R.layout.header1, recycler, false));
-adapter.addFooter(inflater.inflate(R.layout.footer1, recycler, false));
-recycler.setAdapter(adapter);
+adapter = new Adapter();
+WrapSectionAdapter wrapSectionAdapter = new WrapSectionAdapter(adapter);
+// add headers & footers
+wrapSectionAdapter.addHeader(header = inflater.inflate(R.layout.overlay_background, recycler, false));
+wrapSectionAdapter.addHeader(inflater.inflate(R.layout.header, recycler, false));
+wrapSectionAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
+```
+
+### Sections
+pass a `AbstractSectionAdapter` when creating the wrap adapter. The section adapter API is mirrored from RecyclerView (`onCreateViewHolder` and `onBindViewHolder`). Feel free to extend from the SimpleSectionAdapter.
+```Java
+SimpleSectionAdapter sections = new SimpleSectionAdapter(new int[]{0, 6, 9, 14, 19, 23}) { // those are the section positions
+   // override here onCreateSectionViewHolder and onBindSectionView
+}
+WrapSectionAdapter wrapSectionAdapter = new WrapSectionAdapter(adapter, sections);
+```
+
+### Notify data changed
+Just call from the original adapter, internally the calls get offset to the proper positions
+```Java
+adapter.notifyItemRangeInserted(start, count); // that's your original adapter
 ```
 
 ### ScrollListener utils
@@ -39,6 +54,30 @@ scrollListener.setLoadMoreListener(this, 3);
 
 // auto call Picasso.pauseTag and resumeTag for smooth scrolling with ImageViews
 scrollListener.setPicassoTag(PICASSO_TAG);
+```
+
+### OnItemClickListener
+If using a `WrapSectionAdapter` you can just pass to a normal setter, or for `RecyclerView.Adapter` just call `.setOnClickListener(detector);` during `onCreateViewHolder` on every `View`.
+
+`position` and `id` get automatically offset, to exclude header, footer and section clicks.
+```Java
+wrapAdapter.setOnItemClickListenerDetector(
+ new OnItemClickListenerDetector(
+  recycler, // recycler view
+   new OnItemClickListenerDetector.OnItemClickListener() { // the detector
+    @Override public void onItemClick(RecyclerView parent, View view, int position, long id) { // the callback
+     // code here ...
+    }
+   }));
+```
+
+### Using with `GridLayoutManager`
+
+Auto generate or wrap the SpanSizeLookup. Default uses 1 span per item. Header, footer and sections take the whole spanCount.
+
+```Java
+gridLayoutManager.setSpanSizeLookup(
+  wrapSectionAdapter.createSpanSizeLookup(spanCount)); // auto-generate SpanSizeLookup
 ```
 
 ### Floating views and quick return headers
@@ -98,56 +137,9 @@ scrollListener.addListener(
     .build());
 ```
 
-### OnItemClickListener
-
-using a `AbstractHeaderFooterRecyclerAdapter` you can just pass to a normal setter, or for `RecyclerView.Adapter` just call `.setOnClickListener(detector);` during `onCreateViewHolder` on every `View`.
-
-Example using the headerFooter recycler
-```Java
-wrapAdapter.setOnItemClickListenerDetector(
- new OnItemClickListenerDetector(
-  recycler, // recycler view
-   new OnItemClickListenerDetector.OnItemClickListener() { // the detector
-    @Override public void onItemClick(RecyclerView parent, View view, int position, long id) { // the callback
-     // code here ...
-    }
-   },
-   true)); // passing `true` will discount the header/footer from `position` and not call for headers or footers
-```
-
-### Header or Footers with `GridLayoutManager`
-
-There are two versions of `generateSpanSizeLookup`.
-One that generates from the default 1 column per item and one that can wrap a different lookup
-
-```Java
-GridLayoutManager gridLayoutManager = new GridLayoutManager(this, numberOfColumns);
-gridLayoutManager.setSpanSizeLookup(wrapAdapter.generateSpanSizeLookup(numberOfColumns));
-recycler.setLayoutManager(gridLayoutManager);
-```
-
 # Caveats
 
 the methods `notifyItem*` from `RecyclerView.Adapter` were made `final` by Google.
-So it is impossible to override them to properly adjust their positions before passing to the super class.
+So it is impossible to override them on the `WrapSectionAdapter` to properly adjust their positions before passing to the super class.
 
-so the `AbstractHeaderFooterRecyclerAdapter` provides alternative "mirrored" methods for notifying with an underscore symbol `_` at the beginning, they're:
- - _notifyItemChanged(int position)
- - _notifyItemInserted(int position)
- - _notifyItemMoved(int fromPosition, int toPosition)
- - _notifyItemRangeChanged(int positionStart, int itemCount)
- - _notifyItemRangeInserted(int positionStart, int itemCount)
- - _notifyItemRangeRemoved(int positionStart, int itemCount)
- - _notifyItemRemoved(int position)
-
-those will properly adjust the wrapped positions and call to the super class methods.
-That means you have two ways of properly coding. See the example:
-
-```Java
-// 1. call on the original adapter
-// the WrapHeaderFooterAdapter subscribe to the original adapter and properly calls the mirrored methods
-originalAdapter.notifyItemRangeInserted(0, added);
-
-// 2. call the mirrored method directly on the wrapAdapter
-wrapAdapter._notifyItemRangeInserted(0, added);
-```
+So, DO NOT use any `notify` method from `WrapSectionAdapter`. Just call from the original adapter.
