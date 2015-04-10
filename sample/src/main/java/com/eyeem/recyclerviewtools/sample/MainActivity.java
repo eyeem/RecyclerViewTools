@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,11 +27,12 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
 
    @InjectView(R.id.recycler) RecyclerView recycler;
    @InjectView(R.id.refresh) SwipeRefreshLayout refresh;
-
    @InjectView(R.id.floating_button) ImageButton floatingButton;
    @InjectView(R.id.overlay) LinearLayout overlay;
+   @InjectView(R.id.toolbar) Toolbar toolbar;
 
    private static final Object PICASSO_TAG = new Object();
+
    private OnScrollListener scrollListener;
 
    private Adapter adapter;
@@ -41,6 +43,10 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       RecyclerViewTools.setLogLevel(Log.DEBUG);
       setContentView(R.layout.activity_main);
       ButterKnife.inject(this);
+
+      toolbar.setLogo(R.drawable.ic_action_bar);
+      toolbar.setTitle("RecyclerViewTools");
+      toolbar.inflateMenu(R.menu.menu);
 
       adapter = new Adapter();
       refresh.setOnRefreshListener(this);
@@ -84,7 +90,7 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       // header and footers
       LayoutInflater inflater = LayoutInflater.from(this);
       View header;
-      wrapAdapter.addHeader(header = inflater.inflate(R.layout.overlay_background, recycler, false));
+      wrapAdapter.addHeader(header = inflater.inflate(R.layout.quick_return_header_space, recycler, false));
       wrapAdapter.addHeader(inflater.inflate(R.layout.header, recycler, false));
       wrapAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
 
