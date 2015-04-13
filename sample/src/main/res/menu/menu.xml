@@ -8,6 +8,7 @@
       app:showAsAction="ifRoom"/>
 
    <item
+      android:id="@+id/menu_item_settings"
       android:title="Settings"
       android:titleCondensed="Settings"/>
 </menu>

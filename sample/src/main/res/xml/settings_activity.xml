@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+   <SwitchPreference
+      android:defaultValue="true"
+      android:key="flag_linear_grid"
+      android:summary="Turn on to enable Grid Layout Manager"
+      android:title="Linear or Grid"/>
+
+   <ListPreference
+      android:defaultValue="Quick return, snap to, min size"
+      android:entries="@array/overlay_example_entries"
+      android:entryValues="@array/overlay_example_values"
+      android:key="flag_overlay_example"
+      android:title="Overlay example to show"/>
+
+</PreferenceScreen>

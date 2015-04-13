@@ -1,11 +1,13 @@
 package com.eyeem.recyclerviewtools.sample;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -14,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -34,7 +37,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class MainActivity extends ActionBarActivity
-   implements SwipeRefreshLayout.OnRefreshListener, OnItemClickListenerDetector.OnItemClickListener, ParallaxDetector.Listener, LoadMoreOnScrollListener.Listener {
+   implements SwipeRefreshLayout.OnRefreshListener, OnItemClickListenerDetector.OnItemClickListener, ParallaxDetector.Listener, LoadMoreOnScrollListener.Listener, Toolbar.OnMenuItemClickListener {
 
    @InjectView(R.id.recycler) RecyclerView recycler;
    @InjectView(R.id.refresh) SwipeRefreshLayout refresh;
@@ -61,6 +64,7 @@ public class MainActivity extends ActionBarActivity
       toolbar.setLogo(R.drawable.ic_action_bar);
       toolbar.setTitle("RecyclerViewTools");
       toolbar.inflateMenu(R.menu.menu);
+      toolbar.setOnMenuItemClickListener(this);
 
       adapter = new Adapter();
       refresh.setOnRefreshListener(this);
@@ -86,7 +90,7 @@ public class MainActivity extends ActionBarActivity
       wrapAdapter.setOnItemClickListener(recycler, this); // simple `onItemClick` for RecyclerView
 
       // example using `LinearLayoutManager`
-      if (false) {
+      if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("flag_linear_grid", false)) {
          recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
       }
 
@@ -110,7 +114,12 @@ public class MainActivity extends ActionBarActivity
       recycler.setAdapter(wrapAdapter);
 
       // configure the floating header and FAB
+
       int example = 0;
+      try {
+         example = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("flag_overlay_example", null));
+      } catch (NumberFormatException e) { /* not caring */ }
+
       Builder b = RecyclerViewTools.setupMotionControl(overlay).up().setParallaxListener(this, R.id.frame);
       String t;
 
@@ -250,4 +259,20 @@ public class MainActivity extends ActionBarActivity
       currentToast.show();
    }
 
+   @Override public boolean onMenuItemClick(MenuItem menuItem) {
+      if (menuItem.getItemId() == R.id.menu_item_settings) {
+         startActivityForResult(new Intent(this, SettingsActivity.class), 42);
+         return true;
+      }
+      return false;
+   }
+
+   @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      super.onActivityResult(requestCode, resultCode, data);
+      if (requestCode == 42 && resultCode == RESULT_OK) {
+         startActivity(new Intent(this, MainActivity.class));
+         finish();
+         overridePendingTransition(0, 0);
+      }
+   }
 }
