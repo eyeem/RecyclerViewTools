@@ -1,11 +1,13 @@
 package com.eyeem.recyclerviewtools.scroll_controller;
 
 import android.support.annotation.DimenRes;
+import android.support.annotation.IdRes;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.eyeem.recyclerviewtools.Tools;
+import com.eyeem.recyclerviewtools.VisibilityDetector;
 
 /**
  * Created by budius on 30.03.15.
@@ -89,6 +91,11 @@ public class Builder {
       return this;
    }
 
+   public Builder setListener(VisibilityDetector.Listener listener, @IdRes int parentId) {
+      config.visibilityDetector = new VisibilityDetector(config.view, listener, parentId);
+      return this;
+   }
+
    private void set(int flag) {
       config.flags = config.flags | flag;
    }
@@ -105,8 +112,14 @@ public class Builder {
    static class Config {
       View view;
       View reference;
+      VisibilityDetector visibilityDetector;
       int flags;
       int minSize;
+
+      void dispatchOnViewScrolled() {
+         if (visibilityDetector != null)
+            visibilityDetector.onViewScrolled();
+      }
 
       ViewGroup getParent() {
          return ((ViewGroup) view.getParent());

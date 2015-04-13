@@ -173,5 +173,6 @@ class _SnapToController extends AbstractController implements Runnable {
          processingSnapTo = false;
          Log.d(this, "Snap complete.");
       }
+      config.dispatchOnViewScrolled();
    }
 }

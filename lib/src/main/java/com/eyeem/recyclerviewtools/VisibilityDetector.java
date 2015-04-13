@@ -5,7 +5,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.support.annotation.IdRes;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -14,86 +14,79 @@ import android.view.ViewTreeObserver;
  * Smart detects number of visible pixels changed inside a scrollable container.
  * Great to use on Parallax effect.
  * <p/>
- * Usage is simple. Just call {@link #registerOnScrollChangedListener()} (or the variant
- * {@link #registerAndDispatchOnScrollChangedListener()}) and
- * {@link #unregisterOnScrollChangedListener()} on the Activity, Fragment or View life-cycle.
+ * This detector can run on either a RecyclerView by calling {@link #getRecyclerViewScrollListener()}
+ * or in any scrollable view by calling {@link #getViewTreeObserverOnScrollChangedListener()} and
+ * registering those listeners on their correct place.
+ * <p/>
+ * TODO: thinking on make this thing internal as part of the scroll_controllers.
+ * That way it will server only for the onScroll callbacks and not be something detached from the library
  */
-public class VisibilityDetector {
+public class VisibilityDetector implements ViewTreeObserver.OnGlobalLayoutListener {
 
    private static final int ANDROID_PARENT_ID = android.R.id.content;
 
-   public static final int HORIZONTAL = LinearLayoutManager.HORIZONTAL;
-   public static final int VERTICAL = LinearLayoutManager.VERTICAL;
-
    private final View view;
-   private final int orientation;
    private final Listener listener;
    private int parentId = ANDROID_PARENT_ID;
 
-   private ViewTreeObserver.OnScrollChangedListener viewTreeObserver;
    private final Rect tempRect = new Rect();
    private final Point tempPoint = new Point();
    private final Point lastNumberOfVisiblePixels = new Point();
    private final PointF lastPercentOfVisiblePixels = new PointF();
 
+   private RecyclerViewOnScrollListener recyclerViewScrollListener;
+   private ViewTreeObserverOnScrollChangedListener viewTreeObserverOnScrollChangedListener;
+
    /**
     * Default constructor.
     *
-    * @param view        the view to calculate the visible pixels
-    * @param orientation direction to calculate the pixels. One of {@link #HORIZONTAL} or {@link #VERTICAL}
-    * @param listener    callback to receive changes
-    * @param parentId    (optional) optimisation. The detector must traverse up the view hierarchy to find a known parent.
-    *                    If no parentId is supplied, this detector will use android.R.id.content.
-    *                    It's faster for this processing to be done on the closest parent possible
-    *                    This is usually done on a scrollable container such as ScrollView, ListView or RecyclerView
+    * @param view     the view to calculate the visible pixels
+    * @param listener callback to receive changes
+    * @param parentId (optional) optimisation. The detector must traverse up the view hierarchy to find a known parent.
+    *                 If no parentId is supplied, this detector will use android.R.id.content.
+    *                 It's faster for this processing to be done on the closest parent possible
+    *                 This is usually done on a scrollable container such as ScrollView, ListView or RecyclerView
     */
-   public VisibilityDetector(View view, int orientation, Listener listener, @IdRes int parentId) {
+   public VisibilityDetector(View view, Listener listener, @IdRes int parentId) {
       this.view = view;
-      this.orientation = orientation;
       this.listener = listener;
       setParentId(parentId);
+      tryDispatchInitialOnViewScrolledCallback();
    }
 
    // public interface
    // ==============================================================================================
-
-   /**
-    * Register this detector to start detecting.
-    * This is usually called from {@link android.app.Activity#onResume() onResume()} for Fragment or Activities
-    * or {@link android.view.View#onAttachedToWindow() onAttachedToWindow()} for CustomViews
-    */
-   public void registerOnScrollChangedListener() {
-      // update to last known good value
-      Point p = getNumberOfVisiblePixels();
-      lastNumberOfVisiblePixels.set(p.x, p.y);
-      view.getViewTreeObserver().addOnScrollChangedListener(getOnScrollChangedListener());
+   public RecyclerView.OnScrollListener getRecyclerViewScrollListener() {
+      if (viewTreeObserverOnScrollChangedListener != null)
+         throw new RuntimeException(MUTUAL_EXCLUSIVE_EXCEPTION);
+      if (recyclerViewScrollListener == null)
+         recyclerViewScrollListener = new RecyclerViewOnScrollListener();
+      return recyclerViewScrollListener;
    }
 
-   /**
-    * Same as {@link #registerOnScrollChangedListener()} but also dispatch the current value to the listener.
-    * That's useful to run a first update on the view.
-    */
-   public void registerAndDispatchOnScrollChangedListener() {
-      // force bad value to force trigger listener
-      lastNumberOfVisiblePixels.set(Integer.MIN_VALUE, Integer.MIN_VALUE);
-      onViewScrolled(); // here it re-calculates scroll and dispatches
-      registerOnScrollChangedListener(); // register to listen to future updates
-   }
-
-   /**
-    * Unregister this detector from detecting.
-    * This is usually called from {@link android.app.Activity#onPause() onPause()} for Fragment or Activities
-    * or {@link android.view.View#onDetachedFromWindow() onDetachedFromWindow()} for CustomViews
-    */
-   public void unregisterOnScrollChangedListener() {
-      view.getViewTreeObserver().removeOnScrollChangedListener(getOnScrollChangedListener());
+   public ViewTreeObserver.OnScrollChangedListener getViewTreeObserverOnScrollChangedListener() {
+      if (recyclerViewScrollListener != null)
+         throw new RuntimeException(MUTUAL_EXCLUSIVE_EXCEPTION);
+      if (viewTreeObserverOnScrollChangedListener == null)
+         viewTreeObserverOnScrollChangedListener = new ViewTreeObserverOnScrollChangedListener();
+      return viewTreeObserverOnScrollChangedListener;
    }
 
    // private helpers
    // ==============================================================================================
-   private void onViewScrolled() {
+   public boolean onViewScrolled() {
+      return onViewScrolled(false);
+   }
+
+   private boolean onViewScrolled(boolean force) {
+
+      if (view.getWidth() == 0 || view.getHeight() == 0)
+         return false;
+
       Point p = getNumberOfVisiblePixels();
-      if (!p.equals(lastNumberOfVisiblePixels)) {
+      if (force || !p.equals(lastNumberOfVisiblePixels)) {
+
+         // set values
          lastNumberOfVisiblePixels.set(p.x, p.y);
          lastPercentOfVisiblePixels.set(
             ((float) p.x / (float) view.getWidth()),
@@ -104,10 +97,11 @@ public class VisibilityDetector {
          // Here we don't want to dispatch to the listener
          // to avoid listener being fully visible but received a 0pxs callback
          if (Float.isNaN(lastPercentOfVisiblePixels.x) || Float.isNaN(lastPercentOfVisiblePixels.y))
-            return;
+            return false;
 
          listener.onViewVisibilityChanged(view, lastNumberOfVisiblePixels, lastPercentOfVisiblePixels);
       }
+      return true;
    }
 
    private void setParentId(@IdRes int parentId) {
@@ -122,27 +116,20 @@ public class VisibilityDetector {
       this.parentId = ANDROID_PARENT_ID;
    }
 
-   private ViewTreeObserver.OnScrollChangedListener getOnScrollChangedListener() {
-      if (viewTreeObserver == null) {
-         viewTreeObserver = new ViewTreeObserver.OnScrollChangedListener() {
-            @Override public void onScrollChanged() {
-               onViewScrolled();
-            }
-         };
-      }
-      return viewTreeObserver;
+   private Point getNumberOfVisiblePixels() {
+      return Tools.getNumberOfVisiblePixels(view, parentId, tempPoint, tempRect);
    }
 
-   private Point getNumberOfVisiblePixels() {
-      if (Tools.isViewInsideLayout(view, parentId)) {
-         boolean result = view.getGlobalVisibleRect(tempRect);
-         if (result) {
-            tempPoint.set(tempRect.width(), tempRect.height());
-            return tempPoint;
-         }
+   private void tryDispatchInitialOnViewScrolledCallback() {
+      if (!onViewScrolled(true)) {
+         view.getViewTreeObserver().addOnGlobalLayoutListener(this);
       }
-      tempPoint.set(0, 0);
-      return tempPoint;
+   }
+
+   @Override public void onGlobalLayout() {
+      if (onViewScrolled(true)) {
+         view.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+      }
    }
 
    // callback interface
@@ -160,5 +147,28 @@ public class VisibilityDetector {
        * @param percent the percentage of pixels currently visible on this view
        */
       public void onViewVisibilityChanged(View view, Point pixels, PointF percent);
+   }
+
+   // possible scroll detection techniques
+   // mutually exclusive detections, implementing applications should use one or the other
+   // ==============================================================================================
+   private static final String MUTUAL_EXCLUSIVE_EXCEPTION =
+      "Can only use ViewTreeObserver.OnScrollChangedListener or RecyclerView.OnScrollListener, but not both together";
+
+   private class RecyclerViewOnScrollListener extends RecyclerView.OnScrollListener {
+      @Override public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+         onViewScrolled();
+      }
+
+      @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+         onViewScrolled();
+      }
+   }
+
+   private class ViewTreeObserverOnScrollChangedListener implements ViewTreeObserver.OnScrollChangedListener {
+
+      @Override public void onScrollChanged() {
+         onViewScrolled();
+      }
    }
 }

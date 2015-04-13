@@ -63,6 +63,8 @@ class MainController extends RecyclerView.OnScrollListener implements ViewTreeOb
 
          refOnly = dispatchOnScrollStateChanged(scroll, refOnly, recyclerView, newState);
 
+         if (refOnly)
+            config.dispatchOnViewScrolled();
       }
    }
 
@@ -83,6 +85,9 @@ class MainController extends RecyclerView.OnScrollListener implements ViewTreeOb
          }
 
          refOnly = dispatchOnScrolled(scroll, refOnly, recyclerView, dx, dy);
+
+         if (refOnly)
+            config.dispatchOnViewScrolled();
 
       }
    }

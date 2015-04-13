@@ -4,7 +4,7 @@
    xmlns:android="http://schemas.android.com/apk/res/android"
    android:layout_width="match_parent"
    android:layout_height="@dimen/header_height"
-   android:background="#8BC34A"
+   android:background="@color/green"
    android:orientation="vertical">
 
    <android.support.v7.widget.Toolbar
@@ -12,6 +12,11 @@
       android:layout_width="match_parent"
       android:layout_height="0dp"
       android:layout_weight="1"/>
+
+   <Space
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="2"/>
 
    <LinearLayout
       android:layout_width="match_parent"
@@ -23,33 +28,33 @@
          android:layout_width="0dp"
          android:layout_height="match_parent"
          android:layout_weight="1"
-         android:background="#3000"
+         android:background="@color/tab_bg"
          android:gravity="center"
          android:text="B1"/>
 
       <View
          android:layout_width="1px"
          android:layout_height="match_parent"
-         android:background="#fff"/>
+         android:background="@color/transparency"/>
 
       <TextView
          android:layout_width="0dp"
          android:layout_height="match_parent"
          android:layout_weight="1"
-         android:background="#3000"
+         android:background="@color/tab_bg"
          android:gravity="center"
          android:text="B2"/>
 
       <View
          android:layout_width="1px"
          android:layout_height="match_parent"
-         android:background="#fff"/>
+         android:background="@color/transparency"/>
 
       <TextView
          android:layout_width="0dp"
          android:layout_height="match_parent"
          android:layout_weight="1"
-         android:background="#3000"
+         android:background="@color/tab_bg"
          android:gravity="center"
          android:text="B3"/>
 

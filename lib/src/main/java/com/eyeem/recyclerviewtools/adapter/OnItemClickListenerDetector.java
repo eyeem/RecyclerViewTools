@@ -46,6 +46,9 @@ public class OnItemClickListenerDetector implements View.OnClickListener {
          position = a.recyclerToWrappedPosition.get(position);
       }
 
+      // this can happen if data set is changing onItemClick and user clicks fast
+      if (position < 0 || position >= adapter.getItemCount()) return;
+
       Log.d(this, "onClick position " + position);
 
       onItemClickListener.onItemClick(recyclerView, view, position, id);

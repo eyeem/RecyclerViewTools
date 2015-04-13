@@ -1,5 +1,10 @@
 package com.eyeem.recyclerviewtools.sample;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -16,14 +21,18 @@ import android.widget.Toast;
 
 import com.eyeem.recyclerviewtools.OnScrollListener;
 import com.eyeem.recyclerviewtools.RecyclerViewTools;
+import com.eyeem.recyclerviewtools.VisibilityDetector;
 import com.eyeem.recyclerviewtools.adapter.OnItemClickListenerDetector;
 import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
 import com.eyeem.recyclerviewtools.scroll_controller.Builder;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class MainActivity extends ActionBarActivity implements OnScrollListener.LoadMoreListener, SwipeRefreshLayout.OnRefreshListener, OnItemClickListenerDetector.OnItemClickListener {
+public class MainActivity extends ActionBarActivity
+   implements OnScrollListener.LoadMoreListener, SwipeRefreshLayout.OnRefreshListener, OnItemClickListenerDetector.OnItemClickListener, VisibilityDetector.Listener {
 
    @InjectView(R.id.recycler) RecyclerView recycler;
    @InjectView(R.id.refresh) SwipeRefreshLayout refresh;
@@ -36,6 +45,9 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
    private OnScrollListener scrollListener;
 
    private Adapter adapter;
+   private Drawable backgroundDrawable;
+   private int toolbarBgR, toolbarBgG, toolbarBgB;
+   private int transparency;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +110,7 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
 
       // configure the floating header and FAB
       int example = 0;
-      Builder b = RecyclerViewTools.setup(overlay).up();
+      Builder b = RecyclerViewTools.setup(overlay).up().setListener(this, R.id.frame);
       String t;
 
       // a few different versions of the header, just for testing/example
@@ -135,7 +147,38 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       // FAB scroll down, quick return, snap to
       scrollListener.addListener(
          RecyclerViewTools.setup(floatingButton).down().quickReturn().snapTo().build());
+
+      //
+      int screenWidth = getResources().getDisplayMetrics().widthPixels;
+      String backgroundUrl = Adapter.getRandomImage().replace("/h/100/", "/w/" + screenWidth + "/");
+      Picasso.with(this).load(backgroundUrl).into(backgroundTarget);
    }
+
+   @Override protected void onDestroy() {
+      Picasso.with(this).cancelRequest(backgroundTarget);
+      super.onDestroy();
+   }
+
+   private Target backgroundTarget = new Target() {
+      @Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+         backgroundDrawable = new ParallaxDrawable(getResources(), bitmap);
+         overlay.setBackgroundDrawable(backgroundDrawable);
+         int color = getResources().getColor(R.color.tab_bg);
+         toolbarBgR = Color.red(color);
+         toolbarBgG = Color.green(color);
+         toolbarBgB = Color.blue(color);
+         transparency = Color.alpha(getResources().getColor(R.color.transparency));
+         toolbar.setBackgroundColor(color);
+      }
+
+      @Override public void onBitmapFailed(Drawable errorDrawable) {
+
+      }
+
+      @Override public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+      }
+   };
 
    // callbacks
    // =====================
@@ -161,6 +204,16 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       reToast("removing position " + position);
       adapter.remove(position);
       adapter.notifyItemRemoved(position);
+   }
+
+   /*
+    * onViewVisibilityChanged, here we apply parallax goodness
+    */
+   @Override public void onViewVisibilityChanged(View view, Point pixels, PointF percent) {
+      if (backgroundDrawable != null) {
+         backgroundDrawable.setLevel(view.getHeight() - pixels.y);
+         toolbar.setBackgroundColor(Color.argb((int) ((1f - percent.y) * transparency), toolbarBgR, toolbarBgG, toolbarBgB));
+      }
    }
 
    // delayed runnables
@@ -195,4 +248,5 @@ public class MainActivity extends ActionBarActivity implements OnScrollListener.
       currentToast = Toast.makeText(this, toast, Toast.LENGTH_SHORT);
       currentToast.show();
    }
+
 }

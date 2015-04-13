@@ -21,7 +21,7 @@ import butterknife.InjectView;
  */
 public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
 
-   private static final Random random = new Random();
+   private static final Random RANDOM = new Random();
 
    private LayoutInflater inflater;
    private int thumbSize = -1;
@@ -40,16 +40,16 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
    }
 
    public int addStart() {
-      int val = random.nextInt(3) + 1;
+      int val = RANDOM.nextInt(3) + 1;
       for (int i = 0; i < val; i++)
-         data.add(0, new Data(LOREM_IPSUM[random.nextInt(LOREM_IPSUM.length - 1)], IMAGES[random.nextInt(IMAGES.length - 1)]));
+         data.add(0, new Data(LOREM_IPSUM[RANDOM.nextInt(LOREM_IPSUM.length)], IMAGES[RANDOM.nextInt(IMAGES.length)]));
       return val;
    }
 
    public int addEnd() {
-      int val = random.nextInt(3) + 3;
+      int val = RANDOM.nextInt(3) + 3;
       for (int i = 0; i < val; i++)
-         data.add(new Data(LOREM_IPSUM[random.nextInt(LOREM_IPSUM.length - 1)], IMAGES[random.nextInt(IMAGES.length - 1)]));
+         data.add(new Data(LOREM_IPSUM[RANDOM.nextInt(LOREM_IPSUM.length)], IMAGES[RANDOM.nextInt(IMAGES.length)]));
       return val;
    }
 
@@ -59,7 +59,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
 
    public Adapter() {
       data = new ArrayList<>();
-      for (int i = 0; i < random.nextInt(10) + 35; i++) {
+      for (int i = 0; i < RANDOM.nextInt(10) + 35; i++) {
          data.add(new Data(LOREM_IPSUM[i], IMAGES[i]));
       }
    }
@@ -103,6 +103,10 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
          super(itemView);
          ButterKnife.inject(this, itemView);
       }
+   }
+
+   public static String getRandomImage() {
+      return IMAGES[RANDOM.nextInt(IMAGES.length)];
    }
 
    // some images from the popular feed from EyeEm on the 13.03.2015

@@ -25,8 +25,8 @@
          android:layout_marginRight="24dp"
          android:src="@drawable/ic_launcher"/>
 
-      <include layout="@layout/quick_return_header"/>
 
+      <include layout="@layout/quick_return_header"/>
 
    </FrameLayout>
 
