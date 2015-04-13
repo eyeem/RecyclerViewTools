@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode VERSION_CODE.toInteger()
+        versionName VERSION_NAME
     }
     buildTypes {
         release {
@@ -19,7 +19,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:recyclerview-v7:22.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
 }
+
+// uploadArchives from https://github.com/chrisbanes/gradle-mvn-push
+apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
