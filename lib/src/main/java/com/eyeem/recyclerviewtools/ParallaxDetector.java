@@ -17,11 +17,8 @@ import android.view.ViewTreeObserver;
  * This detector can run on either a RecyclerView by calling {@link #getRecyclerViewScrollListener()}
  * or in any scrollable view by calling {@link #getViewTreeObserverOnScrollChangedListener()} and
  * registering those listeners on their correct place.
- * <p/>
- * TODO: thinking on make this thing internal as part of the scroll_controllers.
- * That way it will server only for the onScroll callbacks and not be something detached from the library
  */
-public class VisibilityDetector implements ViewTreeObserver.OnGlobalLayoutListener {
+public class ParallaxDetector implements ViewTreeObserver.OnGlobalLayoutListener {
 
    private static final int ANDROID_PARENT_ID = android.R.id.content;
 
@@ -47,7 +44,7 @@ public class VisibilityDetector implements ViewTreeObserver.OnGlobalLayoutListen
     *                 It's faster for this processing to be done on the closest parent possible
     *                 This is usually done on a scrollable container such as ScrollView, ListView or RecyclerView
     */
-   public VisibilityDetector(View view, Listener listener, @IdRes int parentId) {
+   public ParallaxDetector(View view, Listener listener, @IdRes int parentId) {
       this.view = view;
       this.listener = listener;
       setParentId(parentId);

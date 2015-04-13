@@ -5,6 +5,9 @@ import android.view.ViewGroup;
 
 /**
  * Created by budius on 01.04.15.
+ * <p/>
+ * Base class for section adapter. Those are mostly mirrored calls from RecyclerView.Adapter only
+ * changing the name "view" to "section".
  */
 public abstract class AbstractSectionAdapter<VH extends RecyclerView.ViewHolder> {
 

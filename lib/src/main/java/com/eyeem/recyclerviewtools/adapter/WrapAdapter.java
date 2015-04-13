@@ -11,6 +11,9 @@ import java.util.List;
 
 /**
  * Created by budius on 01.04.15.
+ * <p/>
+ * Base wrapping adapter that allows usage of headers, footers, sections and OnItemClick within a
+ * {@link android.support.v7.widget.RecyclerView RecyclerView}.
  */
 public class WrapAdapter
    extends RecyclerView.Adapter {
@@ -159,8 +162,35 @@ public class WrapAdapter
 
    // OnItemClick handling
    // ==============================================================================================
-   public void setOnItemClickListenerDetector(OnItemClickListenerDetector onItemClickListenerDetector) {
-      this.onItemClickListenerDetector = onItemClickListenerDetector;
+
+   /**
+    * Simple OnItemClick for RecyclerView. This binds a {@link android.view.View.OnClickListener}
+    * to the root view of the each view holder.
+    * <p/>
+    * This call automatically ignore clicks on headers, footers and sections.
+    *
+    * @param recyclerView        the recyclerView this adapter will be attached to
+    * @param onItemClickListener the listener for the click events
+    */
+   public void setOnItemClickListener(
+      RecyclerView recyclerView,
+      OnItemClickListenerDetector.OnItemClickListener onItemClickListener) {
+      setOnItemClickListener(recyclerView, onItemClickListener, true);
+   }
+
+   /**
+    * Simple OnItemClick for RecyclerView. This binds a {@link android.view.View.OnClickListener}
+    * to the root view of the each view holder.
+    *
+    * @param recyclerView        the recyclerView this adapter will be attached to
+    * @param onItemClickListener the listener for the click events
+    * @param ignoreExtras        true if it should ignore header, footer and sections; false otherwise
+    */
+   public void setOnItemClickListener(
+      RecyclerView recyclerView,
+      OnItemClickListenerDetector.OnItemClickListener onItemClickListener,
+      boolean ignoreExtras) {
+      onItemClickListenerDetector = new OnItemClickListenerDetector(recyclerView, onItemClickListener, ignoreExtras);
    }
 
    private void bindOnItemClickListener(RecyclerView.ViewHolder holder, boolean isExtra) {

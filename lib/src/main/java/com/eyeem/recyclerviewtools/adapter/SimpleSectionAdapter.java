@@ -11,12 +11,17 @@ import java.util.Arrays;
  * using an {@link android.util.SparseIntArray SparseIntArray} as the positioning container.
  * As per docs, this should have a good performance up to a few hundred sections.
  * <p/>
- * For larger section count, it's not advisable to use this
+ * For larger section count, it's not advisable to use it.
  */
 public abstract class SimpleSectionAdapter<VH extends RecyclerView.ViewHolder> extends AbstractSectionAdapter<VH> {
 
    private final SparseIntArray positions;
 
+   /**
+    * Default constructor
+    *
+    * @param sectionsAt and array with the positions of each section
+    */
    public SimpleSectionAdapter(int[] sectionsAt) {
       positions = new SparseIntArray(sectionsAt.length);
       Arrays.sort(sectionsAt);

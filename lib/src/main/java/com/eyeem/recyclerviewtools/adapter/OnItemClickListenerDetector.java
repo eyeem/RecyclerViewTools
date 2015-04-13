@@ -20,11 +20,7 @@ public class OnItemClickListenerDetector implements View.OnClickListener {
    private final OnItemClickListener onItemClickListener;
    final boolean ignoreExtras;
 
-   public OnItemClickListenerDetector(RecyclerView recyclerView, OnItemClickListener onItemClickListener) {
-      this(recyclerView, onItemClickListener, true);
-   }
-
-   public OnItemClickListenerDetector(
+   OnItemClickListenerDetector(
       RecyclerView recyclerView,
       OnItemClickListener onItemClickListener,
       boolean ignoreExtras) {

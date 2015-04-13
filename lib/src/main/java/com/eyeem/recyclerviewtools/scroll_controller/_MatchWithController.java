@@ -62,7 +62,7 @@ class _MatchWithController extends AbstractController {
       // only if NORMAL_RETURN (not in cover)
       // or if we're doing the layout pass
       else if (force || config.is(FLAG_NORMAL_RETURN)) {
-         Tools.setTranslationY(config.view, config.getLimit());
+         config.view.setTranslationY(config.getLimit());
          return true;
       } else return false;
    }

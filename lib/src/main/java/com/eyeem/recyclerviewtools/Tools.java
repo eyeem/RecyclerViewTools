@@ -28,7 +28,7 @@ public class Tools {
       return getParentLayout(view, parentId) != null;
    }
 
-   public static View getParentLayout(View view, int parentId) {
+   private static View getParentLayout(View view, int parentId) {
       ViewParent parent = view.getParent();
       while (parent instanceof View) {
          int id = ((View) parent).getId();
@@ -38,17 +38,6 @@ public class Tools {
             parent = parent.getParent();
       }
       return null;
-   }
-
-   public static boolean setTranslationY(View view, int val) {
-      return setTranslationY(view, (float) val);
-   }
-
-   public static boolean setTranslationY(View view, float val) {
-      if (view.getTranslationY() != val) {
-         view.setTranslationY(val);
-         return true;
-      } else return false;
    }
 
 }

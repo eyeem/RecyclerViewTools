@@ -6,8 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.eyeem.recyclerviewtools.Tools;
-import com.eyeem.recyclerviewtools.VisibilityDetector;
+import com.eyeem.recyclerviewtools.ParallaxDetector;
 
 /**
  * Created by budius on 30.03.15.
@@ -91,8 +90,8 @@ public class Builder {
       return this;
    }
 
-   public Builder setListener(VisibilityDetector.Listener listener, @IdRes int parentId) {
-      config.visibilityDetector = new VisibilityDetector(config.view, listener, parentId);
+   public Builder setParallaxListener(ParallaxDetector.Listener listener, @IdRes int parentId) {
+      config.parallaxDetector = new ParallaxDetector(config.view, listener, parentId);
       return this;
    }
 
@@ -112,13 +111,13 @@ public class Builder {
    static class Config {
       View view;
       View reference;
-      VisibilityDetector visibilityDetector;
+      ParallaxDetector parallaxDetector;
       int flags;
       int minSize;
 
       void dispatchOnViewScrolled() {
-         if (visibilityDetector != null)
-            visibilityDetector.onViewScrolled();
+         if (parallaxDetector != null)
+            parallaxDetector.onViewScrolled();
       }
 
       ViewGroup getParent() {
@@ -153,8 +152,8 @@ public class Builder {
        * @param translationY proposed new TranslationY to be used on the view
        * @return true, if the view translation was changed
        */
-      boolean limit(int translationY) {
-         int limit;
+      boolean limit(float translationY) {
+         float limit;
          if (is(FLAG_DOWN)) {
             limit = getLimitDown();
             if (translationY > limit)
@@ -169,7 +168,10 @@ public class Builder {
                translationY = 0;
          }
 
-         return Tools.setTranslationY(view, translationY);
+         if (view.getTranslationY() != translationY) {
+            view.setTranslationY(translationY);
+            return true;
+         } else return false;
       }
 
       /**

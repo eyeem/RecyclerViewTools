@@ -19,11 +19,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.eyeem.recyclerviewtools.LoadMoreOnScrollListener;
 import com.eyeem.recyclerviewtools.OnScrollListener;
+import com.eyeem.recyclerviewtools.ParallaxDetector;
 import com.eyeem.recyclerviewtools.RecyclerViewTools;
-import com.eyeem.recyclerviewtools.VisibilityDetector;
 import com.eyeem.recyclerviewtools.adapter.OnItemClickListenerDetector;
 import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
+import com.eyeem.recyclerviewtools.extras.PicassoOnScrollListener;
 import com.eyeem.recyclerviewtools.scroll_controller.Builder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -32,7 +34,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 public class MainActivity extends ActionBarActivity
-   implements OnScrollListener.LoadMoreListener, SwipeRefreshLayout.OnRefreshListener, OnItemClickListenerDetector.OnItemClickListener, VisibilityDetector.Listener {
+   implements SwipeRefreshLayout.OnRefreshListener, OnItemClickListenerDetector.OnItemClickListener, ParallaxDetector.Listener, LoadMoreOnScrollListener.Listener {
 
    @InjectView(R.id.recycler) RecyclerView recycler;
    @InjectView(R.id.refresh) SwipeRefreshLayout refresh;
@@ -64,8 +66,8 @@ public class MainActivity extends ActionBarActivity
       refresh.setOnRefreshListener(this);
 
       scrollListener = new OnScrollListener();
-      scrollListener.setLoadMoreListener(this, 3); // auto calls-back to load more views at end
-      scrollListener.setPicassoTag(PICASSO_TAG); // calls Picasso.pauseTag/resumeTag automatically
+      scrollListener.addListener(new LoadMoreOnScrollListener(this));  // auto calls-back to load more views at end
+      scrollListener.addListener(new PicassoOnScrollListener(PICASSO_TAG)); // calls Picasso.pauseTag/resumeTag automatically
       recycler.setOnScrollListener(scrollListener);
 
       WrapAdapter wrapAdapter;
@@ -81,8 +83,7 @@ public class MainActivity extends ActionBarActivity
          wrapAdapter = new WrapAdapter(adapter);
       }
 
-      wrapAdapter.setOnItemClickListenerDetector(
-         new OnItemClickListenerDetector(recycler, this)); // simple `onItemClick` for RecyclerView
+      wrapAdapter.setOnItemClickListener(recycler, this); // simple `onItemClick` for RecyclerView
 
       // example using `LinearLayoutManager`
       if (false) {
@@ -110,7 +111,7 @@ public class MainActivity extends ActionBarActivity
 
       // configure the floating header and FAB
       int example = 0;
-      Builder b = RecyclerViewTools.setup(overlay).up().setListener(this, R.id.frame);
+      Builder b = RecyclerViewTools.setupMotionControl(overlay).up().setParallaxListener(this, R.id.frame);
       String t;
 
       // a few different versions of the header, just for testing/example
@@ -146,7 +147,7 @@ public class MainActivity extends ActionBarActivity
 
       // FAB scroll down, quick return, snap to
       scrollListener.addListener(
-         RecyclerViewTools.setup(floatingButton).down().quickReturn().snapTo().build());
+         RecyclerViewTools.setupMotionControl(floatingButton).down().quickReturn().snapTo().build());
 
       //
       int screenWidth = getResources().getDisplayMetrics().widthPixels;

@@ -7,6 +7,10 @@ import android.graphics.drawable.BitmapDrawable;
 
 /**
  * Created by budius on 10.04.15.
+ * <p/>
+ * The purpose of this library is not to mess with any direct UI items
+ * (meaning, the library doesn't direct draw anything), but that's a simple and nice
+ * implementation of ParallaxDrawable that if anyone needs to do parallax I suggest copying that
  */
 public class ParallaxDrawable extends BitmapDrawable {
 

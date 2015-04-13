@@ -24,6 +24,6 @@ class _ScrollWithController extends AbstractController {
       } else {
          newY = config.view.getTranslationY() - dy;
       }
-      return config.limit((int) newY);
+      return config.limit(newY);
    }
 }
