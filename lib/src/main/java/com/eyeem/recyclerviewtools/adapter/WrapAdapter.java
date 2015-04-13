@@ -20,14 +20,17 @@ public class WrapAdapter
 
    private static final int MAX_CACHE_SIZE = 666; // TODO: what's a sensible value?
 
-   private static final int HEADER_VIEW_TYPE_MASK = 0x10000000;
-   private static final long HEADER_ITEM_ID_MASK = 0x1000000000000000L;
+   private static final int MAIN_VIEW_TYPE_MASK = 0x40000000;
+   private static final long MAIN_ITEM_ID_MASK = 0x4000000000000000L;
 
-   private static final int FOOTER_VIEW_TYPE_MASK = 0x20000000;
-   private static final long FOOTER_ITEM_ID_MASK = 0x2000000000000000L;
+   private static final int HEADER_VIEW_TYPE_MASK = 0x1000000 + MAIN_VIEW_TYPE_MASK;
+   private static final long HEADER_ITEM_ID_MASK = 0x100000000000000L + MAIN_ITEM_ID_MASK;
 
-   private static final int SECTION_VIEW_TYPE_MASK = 0x40000000;
-   private static final long SECTION_ITEM_ID_MASK = 0x4000000000000000L;
+   private static final int FOOTER_VIEW_TYPE_MASK = 0x2000000 + MAIN_VIEW_TYPE_MASK;
+   private static final long FOOTER_ITEM_ID_MASK = 0x200000000000000L + MAIN_ITEM_ID_MASK;
+
+   private static final int SECTION_VIEW_TYPE_MASK = 0x4000000 + MAIN_VIEW_TYPE_MASK;
+   private static final long SECTION_ITEM_ID_MASK = 0x400000000000000L + MAIN_ITEM_ID_MASK;
    static final int NOT_A_SECTION = -1;
 
    private final RecyclerView.Adapter wrapped;
