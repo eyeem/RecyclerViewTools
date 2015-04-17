@@ -70,7 +70,10 @@ public class WrapAdapter
          if (sectionPosition != NOT_A_SECTION) {
             return SECTION_VIEW_TYPE_MASK | sections.getSectionViewType(sectionPosition);
          } else {
-            return wrapped.getItemViewType(recyclerToWrappedPosition.get(position));
+            int type = wrapped.getItemViewType(recyclerToWrappedPosition.get(position));
+            if (type > MAIN_VIEW_TYPE_MASK)
+               throw new IllegalArgumentException("ItemView type cannot be greater than 0x" + Integer.toHexString(MAIN_VIEW_TYPE_MASK));
+            return type;
          }
       }
    }
@@ -87,7 +90,10 @@ public class WrapAdapter
          if (sectionPosition != NOT_A_SECTION) {
             return SECTION_ITEM_ID_MASK | sections.getSectionId(sectionPosition);
          } else {
-            return wrapped.getItemViewType(recyclerToWrappedPosition.get(position));
+            long id = wrapped.getItemId(recyclerToWrappedPosition.get(position));
+            if (id > MAIN_ITEM_ID_MASK)
+               throw new IllegalArgumentException("ItemView type cannot be greater than 0x" + Long.toHexString(MAIN_ITEM_ID_MASK));
+            return id;
          }
       }
    }
