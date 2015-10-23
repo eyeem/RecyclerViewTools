@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-   <declare-styleable name="SmarterSwipeRefreshLayout">
-      <attr name="target" format="reference"/>
-   </declare-styleable>
+    <declare-styleable name="SmarterSwipeRefreshLayout">
+        <attr name="target" format="reference"/>
+        <attr name="appBarLayout" format="reference"/>
+    </declare-styleable>
 </resources>

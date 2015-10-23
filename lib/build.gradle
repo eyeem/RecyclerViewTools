@@ -20,6 +20,7 @@ android {
 
 dependencies {
     compile RECYCLER_VIEW_VERSION
+    compile DESIGN_LIB_VERSION
 }
 
 // uploadArchives from https://github.com/chrisbanes/gradle-mvn-push

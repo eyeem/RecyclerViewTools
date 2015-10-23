@@ -8,8 +8,8 @@ import android.widget.TextView;
 
 import com.eyeem.recyclerviewtools.adapter.SimpleSectionAdapter;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by budius on 02.04.15.
@@ -33,11 +33,11 @@ public class TitleAdapter extends SimpleSectionAdapter<TitleAdapter.Holder> {
    }
 
    public static class Holder extends RecyclerView.ViewHolder {
-      @InjectView(R.id.text) TextView text;
+      @Bind(R.id.text) TextView text;
 
       public Holder(View itemView) {
          super(itemView);
-         ButterKnife.inject(this, itemView);
+         ButterKnife.bind(this, itemView);
       }
    }
 }

@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 /**
  * Created by budius on 08.04.15.
- * Implements the {@link com.eyeem.recyclerviewtools.adapter.AbstractSectionAdapter AbstractSectionAdapter}
+ * Implements the {@link AbstractSectionAdapter AbstractSectionAdapter}
  * using an {@link android.util.SparseIntArray SparseIntArray} as the positioning container.
  * As per docs, this should have a good performance up to a few hundred sections.
  * <p/>

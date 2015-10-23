@@ -2,6 +2,8 @@ package com.eyeem.recyclerviewtools;
 
 import android.support.v7.widget.RecyclerView;
 
+import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
+
 /**
  * Created by budius on 13.04.15.
  * <p/>
@@ -26,12 +28,22 @@ public class LoadMoreOnScrollListener extends RecyclerView.OnScrollListener {
 
    @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
       try {
+
+         // don't call listener if adapter is empty
+         RecyclerView.Adapter a = recyclerView.getAdapter();
+         if (a instanceof WrapAdapter && ((WrapAdapter) a).getWrappedCount() == 0)
+            return;
+         else if (a.getItemCount() == 0) return;
+
+         // get position for last childView on recyclerView
          int position = recyclerView.getChildAdapterPosition(recyclerView.getChildAt(recyclerView.getChildCount() - 1));
+
+         // if recyclerView don't know the position, there's nothing I can do
          if (position == RecyclerView.NO_POSITION) return;
 
+         // check offset to call listener
          if (position >= recyclerView.getAdapter().getItemCount() - positionOffset) {
             if (!loadMoreListenerCalled) {
-               Log.d(this, "Load more");
                listener.onLoadMore(recyclerView);
                loadMoreListenerCalled = true;
             }

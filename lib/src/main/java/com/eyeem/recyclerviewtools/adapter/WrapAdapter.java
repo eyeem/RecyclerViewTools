@@ -6,6 +6,8 @@ import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.eyeem.recyclerviewtools.OnItemClickListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,11 +33,15 @@ public class WrapAdapter
 
    private static final int SECTION_VIEW_TYPE_MASK = 0x4000000 + MAIN_VIEW_TYPE_MASK;
    private static final long SECTION_ITEM_ID_MASK = 0x400000000000000L + MAIN_ITEM_ID_MASK;
+
+   private static final int CUSTOM_VIEW_TYPE = Integer.MAX_VALUE;
+
    static final int NOT_A_SECTION = -1;
 
    private final RecyclerView.Adapter wrapped;
    private final AbstractSectionAdapter sections;
    private OnItemClickListenerDetector onItemClickListenerDetector;
+   private boolean isReverseOrder = false;
 
    public WrapAdapter(RecyclerView.Adapter wrappedAdapter) {
       this(wrappedAdapter, new EmptySectionAdapter());
@@ -60,7 +66,11 @@ public class WrapAdapter
 
    // basic adapter callbacks (viewType, ID, count, create n bind viewHolder)
    // ==============================================================================================
-   @Override public int getItemViewType(int position) {
+   @Override
+   public int getItemViewType(int position) {
+
+      if (customView != null) return CUSTOM_VIEW_TYPE;
+
       if (isHeaderPosition(position)) {
          return HEADER_VIEW_TYPE_MASK | position;
       } else if (isFooterPosition(position)) {
@@ -78,8 +88,10 @@ public class WrapAdapter
       }
    }
 
-   @Override public long getItemId(int position) {
+   @Override
+   public long getItemId(int position) {
       if (!hasStableIds()) return RecyclerView.NO_ID;
+      if (customView != null) return RecyclerView.NO_ID;
 
       if (isHeaderPosition(position)) {
          return HEADER_ITEM_ID_MASK | position;
@@ -98,7 +110,11 @@ public class WrapAdapter
       }
    }
 
-   @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+   @Override
+   public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+      if (customView != null && viewType == CUSTOM_VIEW_TYPE)
+         return new HeaderFooterHolder(customView);
 
       RecyclerView.ViewHolder viewHolder;
       boolean extra = false;
@@ -118,7 +134,8 @@ public class WrapAdapter
       return viewHolder;
    }
 
-   @Override public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+   @Override
+   public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
       if (holder instanceof HeaderFooterHolder)
          return;
@@ -130,39 +147,48 @@ public class WrapAdapter
       }
    }
 
-   @Override public int getItemCount() {
-      return wrapped.getItemCount() + sections.getSectionCount() + getHeaderCount() + getFooterCount();
+   @Override
+   public int getItemCount() {
+      if (customView != null) return 1;
+      else
+         return wrapped.getItemCount() + sections.getSectionCount() + getHeaderCount() + getFooterCount();
    }
 
    // extended adapter callbacks, most adapters don't use, but just for completeness
    // ==============================================================================================
-   @Override public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+   @Override
+   public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
       if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
          return;
       wrapped.onViewAttachedToWindow(holder);
    }
 
-   @Override public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+   @Override
+   public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
       if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
          return;
       wrapped.onViewDetachedFromWindow(holder);
    }
 
-   @Override public void onViewRecycled(RecyclerView.ViewHolder holder) {
+   @Override
+   public void onViewRecycled(RecyclerView.ViewHolder holder) {
       if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
          return;
       wrapped.onViewRecycled(holder);
    }
 
-   @Override public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+   @Override
+   public void onAttachedToRecyclerView(RecyclerView recyclerView) {
       wrapped.onAttachedToRecyclerView(recyclerView);
    }
 
-   @Override public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+   @Override
+   public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
       wrapped.onDetachedFromRecyclerView(recyclerView);
    }
 
-   @Override public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
+   @Override
+   public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
       if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
          return super.onFailedToRecycleView(holder);
       else
@@ -183,7 +209,7 @@ public class WrapAdapter
     */
    public void setOnItemClickListener(
       RecyclerView recyclerView,
-      OnItemClickListenerDetector.OnItemClickListener onItemClickListener) {
+      OnItemClickListener onItemClickListener) {
       setOnItemClickListener(recyclerView, onItemClickListener, true);
    }
 
@@ -197,7 +223,7 @@ public class WrapAdapter
     */
    public void setOnItemClickListener(
       RecyclerView recyclerView,
-      OnItemClickListenerDetector.OnItemClickListener onItemClickListener,
+      OnItemClickListener onItemClickListener,
       boolean ignoreExtras) {
       onItemClickListenerDetector = new OnItemClickListenerDetector(recyclerView, onItemClickListener, ignoreExtras);
    }
@@ -238,15 +264,46 @@ public class WrapAdapter
    private List<View> footers; // Lazy initialised list of footers
 
    public void addHeader(View v) {
-      setDefaultLayoutParams(v);
-      getHeaders().add(v);
-      clearCache();
+      if (!getHeaders().contains(v)) {
+         setDefaultLayoutParams(v);
+         getHeaders().add(v);
+         clearCache();
+      }
+   }
+
+   public void removeHeader(View v, boolean autoNotify) {
+      if (headers == null) return;
+      if (getHeaders().contains(v)) {
+         int position = -1;
+         if (autoNotify) position = getHeaders().indexOf(v);
+         if (getHeaders().remove(v)) {
+            clearCache();
+            if (autoNotify && position >= 0)
+               notifyItemRemoved(position);
+         }
+      }
    }
 
    public void addFooter(View v) {
-      setDefaultLayoutParams(v);
-      getFooters().add(v);
-      clearCache();
+      if (!getFooters().contains(v)) {
+         setDefaultLayoutParams(v);
+         getFooters().add(v);
+         clearCache();
+      }
+   }
+
+   public void removeFooter(View v, boolean autoNotify) {
+      if (footers == null) return;
+      if (getFooters().contains(v)) {
+         int position = -1;
+         if (autoNotify) position = getFooters().indexOf(v);
+         if (getFooters().remove(v)) {
+            clearCache();
+            if (autoNotify && position >= 0) {
+               notifyItemRemoved(getHeaderCount() + sections.getSectionCount() + getWrappedCount() + position);
+            }
+         }
+      }
    }
 
    private void setDefaultLayoutParams(View v) {
@@ -288,10 +345,30 @@ public class WrapAdapter
       return footers == null ? 0 : footers.size();
    }
 
+   public int getWrappedCount() {
+      return wrapped.getItemCount();
+   }
+
+   public RecyclerView.Adapter getWrapped() {
+      return wrapped;
+   }
+
    private static class HeaderFooterHolder extends RecyclerView.ViewHolder {
       public HeaderFooterHolder(View itemView) {
          super(itemView);
       }
+   }
+
+   // Custom view (useful for empty states)
+   // ==============================================================================================
+   private View customView;
+
+   public void setCustomView(View view) {
+      // avoid calling notifyDataSetChanged if not really needed
+      if (customView == null && view == null) return;
+      if (customView != null && view != null && customView.equals(view)) return;
+      customView = view;
+      notifyDataSetChanged();
    }
 
    // position conversion and caching for sections
@@ -326,20 +403,23 @@ public class WrapAdapter
 
       if (lruCacheEnabled) {
          sectionIndex = new LruCache<Integer, Integer>(cacheSize) {
-            @Override protected Integer create(Integer position) {
+            @Override
+            protected Integer create(Integer position) {
                return sections.getSectionIndex(position - getHeaderCount());
             }
          };
 
          sectionPosition = new LruCache<Integer, Integer>(cacheSize) {
-            @Override protected Integer create(Integer index) {
+            @Override
+            protected Integer create(Integer index) {
                return sections.getSectionPosition(index);
             }
          };
       }
 
       recyclerToWrappedPosition = new LruCache<Integer, Integer>(cacheSize) {
-         @Override protected Integer create(Integer position) {
+         @Override
+         protected Integer create(Integer position) {
 
             int sectionIndexVal;
             int numberOfSectionsBeforePosition = 0;
@@ -353,12 +433,18 @@ public class WrapAdapter
                   break;
                }
             }
-            return position - numberOfSectionsBeforePosition - getHeaderCount();
+
+            int retVal = position - numberOfSectionsBeforePosition - getHeaderCount();
+            if (isReverseOrder) {
+               retVal = wrapped.getItemCount() - 1 - retVal;
+            }
+            return retVal;
          }
       };
 
       wrappedToRecyclerPosition = new LruCache<Integer, Integer>(cacheSize) {
-         @Override protected Integer create(Integer position) {
+         @Override
+         protected Integer create(Integer position) {
 
             int value = position;
             for (int i = 0; i < sections.getSectionCount(); i++) {
@@ -380,29 +466,44 @@ public class WrapAdapter
       wrappedToRecyclerPosition.evictAll();
    }
 
+   public void setIsReverseOrder(boolean isReverseOrder) {
+      this.isReverseOrder = isReverseOrder;
+      clearCache();
+   }
+
    // Data observing
    // ==============================================================================================
    private final RecyclerView.AdapterDataObserver dataObserver = new RecyclerView.AdapterDataObserver() {
 
-      @Override public void onChanged() {
+      @Override
+      public void onChanged() {
+         clearCache();
          notifyDataSetChanged();
       }
 
-      @Override public void onItemRangeChanged(int positionStart, int itemCount) {
+      @Override
+      public void onItemRangeChanged(int positionStart, int itemCount) {
+         clearCache();
          notifyItemRangeChanged(wrappedToRecyclerPosition.get(positionStart), itemCount);
       }
 
-      @Override public void onItemRangeInserted(int positionStart, int itemCount) {
+      @Override
+      public void onItemRangeInserted(int positionStart, int itemCount) {
          // TODO: section after this point will `blink` on screen
+         clearCache();
          notifyItemRangeInserted(wrappedToRecyclerPosition.get(positionStart), itemCount);
       }
 
-      @Override public void onItemRangeRemoved(int positionStart, int itemCount) {
+      @Override
+      public void onItemRangeRemoved(int positionStart, int itemCount) {
          // TODO: section after this point will `blink` on screen
+         clearCache();
          notifyItemRangeRemoved(wrappedToRecyclerPosition.get(positionStart), itemCount);
       }
 
-      @Override public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+      @Override
+      public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+         clearCache();
          // TODO: moved? what if there was a header in the middle
          int from = wrappedToRecyclerPosition.get(fromPosition);
          int to = wrappedToRecyclerPosition.get((toPosition));
@@ -446,7 +547,8 @@ public class WrapAdapter
          this.spanCount = spanCount;
       }
 
-      @Override public int getSpanSize(int position) {
+      @Override
+      public int getSpanSize(int position) {
 
          if (isHeaderPosition(position)) {
             return spanCount; // header take the whole width

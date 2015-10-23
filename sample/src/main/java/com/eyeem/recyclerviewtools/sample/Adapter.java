@@ -13,8 +13,8 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Random;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by budius on 13.03.15.
@@ -96,12 +96,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
     * @author ButterKnifeZelezny, plugin for Android Studio by Avast Developers (http://github.com/avast)
     */
    static class Holder extends RecyclerView.ViewHolder {
-      @InjectView(R.id.img) ImageView img;
-      @InjectView(R.id.txt) TextView txt;
+      @Bind(R.id.img) ImageView img;
+      @Bind(R.id.txt) TextView txt;
 
       Holder(View itemView) {
          super(itemView);
-         ButterKnife.inject(this, itemView);
+         ButterKnife.bind(this, itemView);
       }
    }
 

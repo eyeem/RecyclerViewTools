@@ -76,7 +76,7 @@ public abstract class AbstractSectionAdapter<VH extends RecyclerView.ViewHolder>
 
    /**
     * Inverse of {@link #getSectionIndex(int)}. That's called during `notify_` events to offset
-    * the notified data to the {@link com.eyeem.recyclerviewtools.adapter.WrapAdapter} position.
+    * the notified data to the {@link WrapAdapter} position.
     *
     * @param index the index of the section
     * @return the position of the section within the wrapped adapter.
@@ -85,7 +85,7 @@ public abstract class AbstractSectionAdapter<VH extends RecyclerView.ViewHolder>
 
    /**
     * Possible optimisation. Calls to {@link #getSectionIndex(int)} and {@link #getSectionPosition(int)} are
-    * LruCached inside the {@link com.eyeem.recyclerviewtools.adapter.WrapAdapter}
+    * LruCached inside the {@link WrapAdapter}
     * Returning `false` will disable the caching. Only do this if you're sure that your
     * implementation can reliably return values faster than an {@link android.util.LruCache}
     *
@@ -96,7 +96,7 @@ public abstract class AbstractSectionAdapter<VH extends RecyclerView.ViewHolder>
    }
 
    /**
-    * Value to be returned from {@link com.eyeem.recyclerviewtools.adapter.AbstractSectionAdapter#getSectionIndex(int)}
+    * Value to be returned from {@link AbstractSectionAdapter#getSectionIndex(int)}
     * when the position is not a section
     */
    public static final int NOT_A_SECTION = WrapAdapter.NOT_A_SECTION;
