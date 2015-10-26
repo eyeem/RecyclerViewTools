@@ -1,5 +1,6 @@
 package com.eyeem.recyclerviewtools;
 
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 
 import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
@@ -27,6 +28,11 @@ public class LoadMoreOnScrollListener extends RecyclerView.OnScrollListener {
    }
 
    @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+      if (!ViewCompat.canScrollVertically(recyclerView, -1)) {
+         loadMoreListenerCalled = false;
+      }
+
       try {
 
          // don't call listener if adapter is empty
