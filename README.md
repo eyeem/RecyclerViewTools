@@ -11,6 +11,21 @@ Includes:
 # Usage
 Seriously couldn't be simpler:
 
+### Add to Gradle build script
+
+```Java
+repositories {
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+}
+
+dependencies {
+    compile 'com.eyeem.recyclerviewtools:library:0.0.1-SNAPSHOT@aar'
+    compile 'com.eyeem.recyclerviewtools:library-extras:0.0.1-SNAPSHOT@aar'
+}
+```
+
 ### Headers & Footers
 ```Java
 // create your recycler adapter normally, then wrap it on the wrapper
