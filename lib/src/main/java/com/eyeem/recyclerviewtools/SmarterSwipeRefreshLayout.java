@@ -2,10 +2,9 @@ package com.eyeem.recyclerviewtools;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
@@ -47,7 +46,6 @@ public class SmarterSwipeRefreshLayout extends SwipeRefreshLayout implements App
    private View target = null;
    private AppBarLayout appBarLayout;
    private boolean appBarExpanded = true;
-   private boolean ignoreSavedState = false;
 
    @Override protected void onAttachedToWindow() {
       super.onAttachedToWindow();
@@ -77,6 +75,13 @@ public class SmarterSwipeRefreshLayout extends SwipeRefreshLayout implements App
 
       if (appBarLayout != null)
          appBarLayout.addOnOffsetChangedListener(this);
+
+      try {
+         AppBarLayout.Behavior b = (AppBarLayout.Behavior)
+            ((CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams()).getBehavior();
+         int currentOffset = b.getTopAndBottomOffset();
+         onOffsetChanged(appBarLayout, currentOffset);
+      } catch (Exception ignored) { /* so much stuff can go wrong on the above call */ }
    }
 
    @Override protected void onDetachedFromWindow() {
@@ -105,30 +110,6 @@ public class SmarterSwipeRefreshLayout extends SwipeRefreshLayout implements App
    }
 
    @Override public void onOffsetChanged(AppBarLayout appBarLayout, int i) {
-      ignoreSavedState = true;
       appBarExpanded = (i >= 0);
-   }
-
-   private static final String KEY_SUPER = "smarterSwipeRefreshLayout.key.super";
-   private static final String KEY_EXPANDED = "smarterSwipeRefreshLayout.key.expanded";
-
-   @Override protected Parcelable onSaveInstanceState() {
-      Bundle b = new Bundle();
-      b.putParcelable(KEY_SUPER, super.onSaveInstanceState());
-      b.putBoolean(KEY_EXPANDED, appBarExpanded);
-      return b;
-   }
-
-   @Override protected void onRestoreInstanceState(Parcelable state) {
-      if (state instanceof Bundle) {
-         Bundle b = (Bundle) state;
-         if (b.containsKey(KEY_SUPER) && b.containsKey(KEY_EXPANDED)) {
-            super.onRestoreInstanceState(b.getParcelable(KEY_SUPER));
-            if (ignoreSavedState) return;
-            appBarExpanded = b.getBoolean(KEY_EXPANDED, true);
-            return;
-         }
-      }
-      super.onRestoreInstanceState(state);
    }
 }

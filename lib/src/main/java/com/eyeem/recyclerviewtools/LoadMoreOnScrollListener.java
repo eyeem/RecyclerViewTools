@@ -27,6 +27,10 @@ public class LoadMoreOnScrollListener extends RecyclerView.OnScrollListener {
       this.positionOffset = positionOffset;
    }
 
+   public void setLoadMoreListenerCalled(boolean value) {
+      loadMoreListenerCalled = value;
+   }
+
    @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 
       if (!ViewCompat.canScrollVertically(recyclerView, -1)) {
