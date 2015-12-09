@@ -2,14 +2,19 @@ package com.eyeem.recyclerviewtools.adapter;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.LruCache;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.eyeem.recyclerviewtools.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by budius on 01.04.15.
@@ -69,45 +74,55 @@ public class WrapAdapter
    @Override
    public int getItemViewType(int position) {
 
-      if (customView != null) return CUSTOM_VIEW_TYPE;
+      int type;
 
-      if (isHeaderPosition(position)) {
-         return HEADER_VIEW_TYPE_MASK | position;
+      if (customView != null) {
+         type = CUSTOM_VIEW_TYPE;
+      } else if (isHeaderPosition(position)) {
+         type = HEADER_VIEW_TYPE_MASK | headerTypes.get(getHeaders().get(position).hashCode());
       } else if (isFooterPosition(position)) {
-         return FOOTER_VIEW_TYPE_MASK | (getItemCount() - position - 1);
+         int footerPosition = position - getItemCount() + getFooterCount();
+         type = FOOTER_VIEW_TYPE_MASK | footerTypes.get(getFooters().get(footerPosition).hashCode());
       } else {
          int sectionPosition = getSectionIndex(position);
          if (sectionPosition != NOT_A_SECTION) {
-            return SECTION_VIEW_TYPE_MASK | sections.getSectionViewType(sectionPosition);
+            type = SECTION_VIEW_TYPE_MASK | sections.getSectionViewType(sectionPosition);
          } else {
-            int type = wrapped.getItemViewType(recyclerToWrappedPosition.get(position));
+            type = wrapped.getItemViewType(recyclerToWrappedPosition.get(position));
             if (type > MAIN_VIEW_TYPE_MASK)
                throw new IllegalArgumentException("ItemView type cannot be greater than 0x" + Integer.toHexString(MAIN_VIEW_TYPE_MASK));
-            return type;
          }
       }
+      l("getItemViewType for " + position + " = 0x" + Integer.toHexString(type));
+      return type;
    }
 
    @Override
    public long getItemId(int position) {
-      if (!hasStableIds()) return RecyclerView.NO_ID;
-      if (customView != null) return RecyclerView.NO_ID;
 
-      if (isHeaderPosition(position)) {
-         return HEADER_ITEM_ID_MASK | position;
+      long id;
+
+      if (!hasStableIds()) {
+         id = RecyclerView.NO_ID;
+      } else if (customView != null) {
+         id = RecyclerView.NO_ID;
+      } else if (isHeaderPosition(position)) {
+         id = HEADER_ITEM_ID_MASK | getHeaders().get(position).hashCode();
       } else if (isFooterPosition(position)) {
-         return FOOTER_ITEM_ID_MASK | (getItemCount() - position);
+         int footerPosition = position - getItemCount() + getFooterCount();
+         id = FOOTER_ITEM_ID_MASK | getFooters().get(footerPosition).hashCode();
       } else {
          int sectionPosition = getSectionIndex(position);
          if (sectionPosition != NOT_A_SECTION) {
-            return SECTION_ITEM_ID_MASK | sections.getSectionId(sectionPosition);
+            id = SECTION_ITEM_ID_MASK | sections.getSectionId(sectionPosition);
          } else {
-            long id = wrapped.getItemId(recyclerToWrappedPosition.get(position));
+            id = wrapped.getItemId(recyclerToWrappedPosition.get(position));
             if (id > MAIN_ITEM_ID_MASK)
                throw new IllegalArgumentException("ItemView type cannot be greater than 0x" + Long.toHexString(MAIN_ITEM_ID_MASK));
-            return id;
          }
       }
+      l("getItemId for " + position + " = 0x" + Long.toHexString(id));
+      return id;
    }
 
    @Override
@@ -120,10 +135,10 @@ public class WrapAdapter
       boolean extra = false;
       if (isHeaderViewType(viewType)) {
          extra = true;
-         viewHolder = new HeaderFooterHolder(getHeaders().get(removeMask(viewType, HEADER_VIEW_TYPE_MASK)));
+         viewHolder = new HeaderFooterHolder(findViewByType(removeMask(viewType, HEADER_VIEW_TYPE_MASK), getHeaders(), headerTypes));
       } else if (isFooterViewType(viewType)) {
          extra = true;
-         viewHolder = new HeaderFooterHolder(getFooters().get(removeMask(viewType, FOOTER_VIEW_TYPE_MASK)));
+         viewHolder = new HeaderFooterHolder(findViewByType(removeMask(viewType, FOOTER_VIEW_TYPE_MASK), getFooters(), footerTypes));
       } else if (isSectionViewType(viewType)) {
          extra = true;
          viewHolder = sections.onCreateSectionViewHolder(parent, removeMask(viewType, SECTION_VIEW_TYPE_MASK));
@@ -238,35 +253,51 @@ public class WrapAdapter
 
    // View type helpers
    // ==============================================================================================
-   private boolean isHeaderViewType(int viewType) {
+   private static boolean isHeaderViewType(int viewType) {
       return isViewType(viewType, HEADER_VIEW_TYPE_MASK);
    }
 
-   private boolean isFooterViewType(int viewType) {
+   private static boolean isFooterViewType(int viewType) {
       return isViewType(viewType, FOOTER_VIEW_TYPE_MASK);
    }
 
-   private boolean isSectionViewType(int viewType) {
+   private static boolean isSectionViewType(int viewType) {
       return isViewType(viewType, SECTION_VIEW_TYPE_MASK);
    }
 
-   private boolean isViewType(int viewType, int viewTypeMask) {
+   private static boolean isViewType(int viewType, int viewTypeMask) {
       return (viewTypeMask & viewType) == viewTypeMask;
    }
 
-   private int removeMask(int val, int mask) {
+   private static int removeMask(int val, int mask) {
       return val & ~mask; // ~ is bitwise not: NOT mask AND val
+   }
+
+   private static View findViewByType(int viewType, List<View> views, SparseIntArray hashToType) {
+      for (int i = 0, size = views.size(); i < size; i++) {
+         View v = views.get(i);
+         int thisViewType = hashToType.get(v.hashCode());
+         if (thisViewType == viewType) {
+            return v;
+         }
+      }
+      return null;
    }
 
    // Headers and Footers
    // ==============================================================================================
    private List<View> headers; // Lazy initialised list of headers
    private List<View> footers; // Lazy initialised list of footers
+   private final AtomicInteger headerViewTypeGenerator = new AtomicInteger();
+   private final AtomicInteger footerViewTypeGenerator = new AtomicInteger();
+   private SparseIntArray headerTypes;
+   private SparseIntArray footerTypes;
 
    public void addHeader(View v) {
       if (!getHeaders().contains(v)) {
          setDefaultLayoutParams(v);
          getHeaders().add(v);
+         headerTypes.put(v.hashCode(), headerViewTypeGenerator.incrementAndGet());
          clearCache();
       }
    }
@@ -277,6 +308,7 @@ public class WrapAdapter
          int position = -1;
          if (autoNotify) position = getHeaders().indexOf(v);
          if (getHeaders().remove(v)) {
+            headerTypes.delete(v.hashCode());
             clearCache();
             if (autoNotify && position >= 0)
                notifyItemRemoved(position);
@@ -288,6 +320,7 @@ public class WrapAdapter
       if (!getFooters().contains(v)) {
          setDefaultLayoutParams(v);
          getFooters().add(v);
+         footerTypes.put(v.hashCode(), footerViewTypeGenerator.incrementAndGet());
          clearCache();
       }
    }
@@ -298,6 +331,7 @@ public class WrapAdapter
          int position = -1;
          if (autoNotify) position = getFooters().indexOf(v);
          if (getFooters().remove(v)) {
+            footerTypes.delete(v.hashCode());
             clearCache();
             if (autoNotify && position >= 0) {
                notifyItemRemoved(getHeaderCount() + sections.getSectionCount() + getWrappedCount() + position);
@@ -328,12 +362,16 @@ public class WrapAdapter
    private List<View> getHeaders() {
       if (headers == null)
          headers = new ArrayList<>();
+      if (headerTypes == null)
+         headerTypes = new SparseIntArray();
       return headers;
    }
 
    private List<View> getFooters() {
       if (footers == null)
          footers = new ArrayList<>();
+      if (footerTypes == null)
+         footerTypes = new SparseIntArray();
       return footers;
    }
 
@@ -566,4 +604,18 @@ public class WrapAdapter
          }
       }
    }
+
+   //region static loggin
+   private static boolean logEnabled = false;
+
+   public static void setLogging(boolean enabled) {
+      logEnabled = enabled;
+   }
+
+   private static void l(String message) {
+      if (logEnabled) {
+         Log.d("WrapAdapter", message);
+      }
+   }
+   //endregion
 }

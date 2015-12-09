@@ -1,9 +1,6 @@
 package com.eyeem.recyclerviewtools.sample;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -13,16 +10,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.eyeem.recyclerviewtools.LoadMoreOnScrollListener;
 import com.eyeem.recyclerviewtools.OnItemClickListener;
 import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
 import com.eyeem.recyclerviewtools.extras.PicassoOnScrollListener;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -35,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements
    @Bind(R.id.recycler) RecyclerView recycler;
    @Bind(R.id.refresh) SwipeRefreshLayout refresh;
    @Bind(R.id.toolbar) Toolbar toolbar;
-   private View header;
 
    private static final Object PICASSO_TAG = new Object();
 
@@ -44,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
+      WrapAdapter.setLogging(true);
       setContentView(R.layout.activity_main);
       ButterKnife.bind(this);
 
@@ -88,36 +83,53 @@ public class MainActivity extends AppCompatActivity implements
 
       // header and footers
       LayoutInflater inflater = LayoutInflater.from(this);
-      wrapAdapter.addHeader(header = inflater.inflate(R.layout.header, recycler, false));
+      View v;
+      v = get("HEADER 1");
+      v.setOnClickListener(new RemoveHeaderClickListener(v, wrapAdapter));
+      wrapAdapter.addHeader(v);
+
+      v = get("HEADER 2");
+      v.getLayoutParams().height *=2;
+      v.setOnClickListener(new RemoveHeaderClickListener(v, wrapAdapter));
+      wrapAdapter.addHeader(v);
+
+      v = get("HEADER 3");
+      v.setOnClickListener(new RemoveHeaderClickListener(v, wrapAdapter));
+      wrapAdapter.addHeader(v);
       wrapAdapter.addFooter(inflater.inflate(R.layout.footer, recycler, false));
 
       recycler.setAdapter(wrapAdapter);
+   }
 
-      int screenWidth = getResources().getDisplayMetrics().widthPixels;
-      String backgroundUrl = Adapter.getRandomImage().replace("/h/100/", "/w/" + screenWidth + "/");
-      Picasso.with(this).load(backgroundUrl).into(backgroundTarget);
+   private LayoutInflater layoutInflater;
+
+   private TextView get(String message) {
+      if (layoutInflater == null) {
+         layoutInflater = LayoutInflater.from(this);
+      }
+      TextView t = (TextView) layoutInflater.inflate(R.layout.header, recycler, false);
+      t.setText(message);
+      return t;
+   }
+
+   private static class RemoveHeaderClickListener implements View.OnClickListener {
+      private final WrapAdapter wrapAdapter;
+      private final View header;
+
+      public RemoveHeaderClickListener(View header, WrapAdapter wrapAdapter) {
+         this.wrapAdapter = wrapAdapter;
+         this.header = header;
+      }
+
+      @Override public void onClick(View v) {
+         wrapAdapter.removeHeader(header, true);
+      }
    }
 
    @Override protected void onDestroy() {
-      Picasso.with(this).cancelRequest(backgroundTarget);
       ButterKnife.unbind(this);
       super.onDestroy();
    }
-
-   private Target backgroundTarget = new Target() {
-      @Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-         Drawable backgroundDrawable = new BitmapDrawable(getResources(), bitmap);
-         header.setBackgroundDrawable(backgroundDrawable);
-      }
-
-      @Override public void onBitmapFailed(Drawable errorDrawable) {
-
-      }
-
-      @Override public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-      }
-   };
 
    // callbacks
    // =====================

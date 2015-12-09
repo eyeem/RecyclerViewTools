@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/header_background"
-              android:layout_width="match_parent"
-              android:layout_height="120dp"
-              android:gravity="center"
-              android:orientation="vertical">
+<TextView android:id="@+id/header"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="120dp"
+          android:background="@color/header"
+          android:elevation="4dp"
+          android:gravity="center_vertical"
+          android:padding="16dp"
+          android:textSize="18sp"
+          tools:text="this is a text">
 
-   <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="this is HEADER"/>
-
-   <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="... and subtitle !"/>
-
-</LinearLayout>
+</TextView>
