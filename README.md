@@ -7,6 +7,7 @@ Includes:
  - Headers, Footers & Sections for `RecyclerView`. Based on a common "wrap" adapter.
  - Extended `SwipeRefreshLayout` to use when Recycler is not direct child (e.g. on CoordinatorLayout)
  - Implementation of OnItemClickListener for RecyclerView (works standalone or in conjunction with headers, footers & sections).
+ - FastScrollToTop function.
 
 # Usage
 Seriously couldn't be simpler:
@@ -21,8 +22,8 @@ repositories {
 }
 
 dependencies {
-    compile 'com.eyeem.recyclerviewtools:library:0.0.2-SNAPSHOT@aar'
-    compile 'com.eyeem.recyclerviewtools:library-extras:0.0.2-SNAPSHOT@aar'
+    compile 'com.eyeem.recyclerviewtools:library:0.0.3-SNAPSHOT@aar'
+    compile 'com.eyeem.recyclerviewtools:library-extras:0.0.3-SNAPSHOT@aar'
 }
 ```
 
