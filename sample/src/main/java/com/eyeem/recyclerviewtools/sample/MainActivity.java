@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.eyeem.recyclerviewtools.LoadMoreOnScrollListener;
 import com.eyeem.recyclerviewtools.OnItemClickListener;
 import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
-import com.eyeem.recyclerviewtools.extras.PicassoOnScrollListener;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -49,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements
       refresh.setOnRefreshListener(this);
 
       recycler.addOnScrollListener(new LoadMoreOnScrollListener(this));  // auto calls-back to load more views at end
-      recycler.addOnScrollListener(new PicassoOnScrollListener(PICASSO_TAG)); // calls Picasso.pauseTag/resumeTag automatically
 
       WrapAdapter wrapAdapter;
 

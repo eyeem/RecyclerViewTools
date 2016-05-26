@@ -26,7 +26,6 @@ dependencies {
     compile RECYCLER_VIEW_VERSION
     compile DESIGN_LIB_VERSION
     compile project(':lib')
-    compile project(':extras')
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
