@@ -127,20 +127,27 @@ public class WrapAdapter
    @Override
    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-      if (customView != null && viewType == CUSTOM_VIEW_TYPE)
-         return new HeaderFooterHolder(customView);
-
       RecyclerView.ViewHolder viewHolder;
+
+      if (customView != null && viewType == CUSTOM_VIEW_TYPE) {
+         viewHolder = new HeaderFooterHolder(customView);
+         StaggeredLayoutManagerUtils.checkLayoutParamsAfterLayout(viewHolder.itemView);
+         return viewHolder;
+      }
+
       boolean extra = false;
       if (isHeaderViewType(viewType)) {
          extra = true;
          viewHolder = new HeaderFooterHolder(findViewByType(removeMask(viewType, HEADER_VIEW_TYPE_MASK), getHeaders(), headerTypes));
+         StaggeredLayoutManagerUtils.checkLayoutParamsAfterLayout(viewHolder.itemView);
       } else if (isFooterViewType(viewType)) {
          extra = true;
          viewHolder = new HeaderFooterHolder(findViewByType(removeMask(viewType, FOOTER_VIEW_TYPE_MASK), getFooters(), footerTypes));
+         StaggeredLayoutManagerUtils.checkLayoutParamsAfterLayout(viewHolder.itemView);
       } else if (isSectionViewType(viewType)) {
          extra = true;
          viewHolder = sections.onCreateSectionViewHolder(parent, removeMask(viewType, SECTION_VIEW_TYPE_MASK));
+         StaggeredLayoutManagerUtils.checkLayoutParamsAfterLayout(viewHolder.itemView);
       } else {
          viewHolder = wrapped.onCreateViewHolder(parent, viewType);
       }
@@ -152,13 +159,14 @@ public class WrapAdapter
    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
       if (holder instanceof HeaderFooterHolder) {
-         setupStaggeredGridLayoutManager(holder);
+         StaggeredLayoutManagerUtils.checkLayoutParams(holder.itemView);
          return;
       }
 
       if (isSectionViewType(holder.getItemViewType())) {
          setupStaggeredGridLayoutManager(holder);
          sections.onBindSectionView(holder, getSectionIndex(position));
+         StaggeredLayoutManagerUtils.checkLayoutParams(holder.itemView);
       } else {
          wrapped.onBindViewHolder(holder, recyclerToWrappedPosition.get(position));
       }
