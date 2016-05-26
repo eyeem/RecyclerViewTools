@@ -67,7 +67,7 @@ public class ChooserActivity extends AppCompatActivity implements Toolbar.OnMenu
          useLoadMore.setChecked(config.useLoadMore);
          useOnItemClick.setChecked(config.useOnItemClick);
          layoutManager.setSelection(config.layoutManager);
-         layoutManagerSpan.setSelection(config.layoutManagerSpan);
+         layoutManagerSpan.setSelection(config.layoutManagerSpan - 2);
       }
 
       useCoordinatorLayout.setOnCheckedChangeListener(this);

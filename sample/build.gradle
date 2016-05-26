@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION.toInteger()
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.eyeem.recyclerviewtools.sample"
         minSdkVersion 21 // using 21 here so the sample can use vector drawable without compat
-        targetSdkVersion TARGET_SDK_VERSION.toInteger()
-        versionCode VERSION_CODE.toInteger()
-        versionName VERSION_NAME
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.libraryVersion
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,16 +23,14 @@ android {
 }
 
 dependencies {
-    compile RECYCLER_VIEW_VERSION
-    compile DESIGN_LIB_VERSION
-    compile project(':lib')
+    compile project(':library')
 
-    //compile 'com.squareup.okhttp:okhttp:2.2.0'
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:recyclerview-v7:23.4.0'
-    compile 'com.android.support:cardview-v7:23.4.0'
+    compile group: 'com.android.support', name: 'recyclerview-v7', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support', name: 'design', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support', name: 'appcompat-v7', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support', name: 'cardview-v7', version: rootProject.ext.supportLibVersion
+
     compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.android.support:design:23.4.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.actinarium.aligned:aligned:0.1'

@@ -1,0 +1,52 @@
+apply plugin: 'com.android.library'
+
+ext {
+    publishedGroupId = 'com.eyeem.recyclerviewtools'
+    artifact = 'library'
+    libraryVersion = rootProject.ext.libraryVersion
+
+    bintrayRepo = 'maven'
+    bintrayName = 'recyclerview-tools'
+
+    libraryName = 'RecyclerView Tools Library'
+    libraryDescription = 'Collection of tools for RecyclerView. Includes headers, sections, pull to refresh, etc'
+
+    siteUrl = 'https://github.com/eyeem/RecyclerViewTools'
+    gitUrl = 'https://github.com/eyeem/RecyclerViewTools.git'
+
+    developerId = 'ronaldoeyeem'
+    developerName = 'Ronaldo Pace'
+    developerEmail = 'ronaldo@eyeem.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.libraryVersion
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile group: 'com.android.support', name: 'recyclerview-v7', version: rootProject.ext.supportLibVersion
+    compile group: 'com.android.support', name: 'design', version: rootProject.ext.supportLibVersion
+}
+
+// bintray upload scripts
+// https://inthecheesefactory.com/blog/how-to-upload-library-to-jcenter-maven-central-as-dependency/en
+apply from: 'install.gradle'
+apply from: 'bintray.gradle'
