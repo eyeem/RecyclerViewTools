@@ -2,9 +2,9 @@ package com.eyeem.recyclerviewtools.adapter;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.util.LruCache;
-import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import com.eyeem.recyclerviewtools.OnItemClickListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -152,13 +151,26 @@ public class WrapAdapter
    @Override
    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-      if (holder instanceof HeaderFooterHolder)
+      if (holder instanceof HeaderFooterHolder) {
+         setupStaggeredGridLayoutManager(holder);
          return;
+      }
 
       if (isSectionViewType(holder.getItemViewType())) {
+         setupStaggeredGridLayoutManager(holder);
          sections.onBindSectionView(holder, getSectionIndex(position));
       } else {
          wrapped.onBindViewHolder(holder, recyclerToWrappedPosition.get(position));
+      }
+   }
+
+   private static void setupStaggeredGridLayoutManager(RecyclerView.ViewHolder holder) {
+      // if StaggeredGridLayoutManager
+      if (holder.itemView.getLayoutParams() instanceof StaggeredGridLayoutManager.LayoutParams &&
+         // and not set to full span yet
+         !((StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams()).isFullSpan()) {
+         // set it to full span
+         ((StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams()).setFullSpan(true);
       }
    }
 
