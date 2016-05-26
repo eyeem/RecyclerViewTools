@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.eyeem.recyclerviewtools.sample"
-        minSdkVersion MIN_SDK_VERSION.toInteger()
+        minSdkVersion 21 // using 21 here so the sample can use vector drawable without compat
         targetSdkVersion TARGET_SDK_VERSION.toInteger()
         versionCode VERSION_CODE.toInteger()
         versionName VERSION_NAME
@@ -26,8 +26,14 @@ dependencies {
     compile RECYCLER_VIEW_VERSION
     compile DESIGN_LIB_VERSION
     compile project(':lib')
-    compile 'com.android.support:appcompat-v7:23.1.0'
+
+    //compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:recyclerview-v7:23.4.0'
+    compile 'com.android.support:cardview-v7:23.4.0'
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.android.support:design:23.4.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.squareup.okhttp:okhttp:2.2.0'
+    compile 'de.hdodenhof:circleimageview:2.0.0'
+    compile 'com.actinarium.aligned:aligned:0.1'
 }

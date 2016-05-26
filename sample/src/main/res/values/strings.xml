@@ -1,20 +1,3 @@
 <resources>
    <string name="app_name">RecyclerView tools sample</string>
-   <string name="title_activity_settings">SettingsActivity</string>
-
-   <string name="hello_world">Hello world!</string>
-   <string name="action_settings">Settings</string>
-
-   <string-array name="overlay_example_entries">
-      <item>Quick return, snap to, min size</item>
-      <item>Normal return</item>
-      <item>Quick return</item>
-      <item>Normal return, min size</item>
-   </string-array>
-   <string-array name="overlay_example_values">
-      <item>0</item>
-      <item>1</item>
-      <item>2</item>
-      <item>3</item>
-   </string-array>
 </resources>

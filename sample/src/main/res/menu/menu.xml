@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_item_scroll_to_top"
+          android:icon="@drawable/ic_arrow_upward_white_24dp"
+          android:title="Scroll to top"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_item_toggle_custom_view"
+          android:checkable="true"
+          android:icon="@drawable/ic_check_box_outline_blank_white_24dp"
+          android:title="Toggle View"
+          app:showAsAction="ifRoom"/>
+
+</menu>
