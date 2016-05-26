@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-   <dimen name="thumb_size">60dp</dimen>
-   <dimen name="header_height">192dp</dimen>
-   <dimen name="header_min_size">48dp</dimen>
+    <dimen name="profile_size">48dp</dimen>
 </resources>
