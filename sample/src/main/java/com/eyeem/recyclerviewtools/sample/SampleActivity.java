@@ -73,7 +73,7 @@ public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemCl
       switch (config.layoutManager) {
          case Config.GRID_LAYOUT_MANAGER:
             layoutManager = new GridLayoutManager(this, config.layoutManagerSpan);
-            ((GridLayoutManager) layoutManager).setSpanSizeLookup(wrapAdapter.createSpanSizeLookup(2));
+            ((GridLayoutManager) layoutManager).setSpanSizeLookup(wrapAdapter.createSpanSizeLookup(config.layoutManagerSpan));
             break;
          case Config.STAGGERED_GRID_LAYOUT_MANAGER:
             layoutManager = new StaggeredGridLayoutManager(config.layoutManagerSpan, StaggeredGridLayoutManager.VERTICAL);
