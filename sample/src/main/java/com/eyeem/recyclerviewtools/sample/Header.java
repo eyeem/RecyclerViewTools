@@ -25,7 +25,6 @@ public class Header extends ImageView {
       ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(
          ViewGroup.LayoutParams.MATCH_PARENT,
          dm.heightPixels / 3);
-      lp.bottomMargin = (int) (dm.density * 16f);
       setLayoutParams(lp);
       setScaleType(ScaleType.CENTER_CROP);
       Picasso.with(context)

@@ -1,31 +1,33 @@
-#Android generated
-bin
-gen
-lint.xml
-
-#IntelliJ IDEA
-.idea
-*.iml
-*.ipr
-*.iws
-classes
-gen-external-apklibs
-
-#Maven
-target
-release.properties
-pom.xml.*
-
-#Ant
-ant.properties
-local.properties
-proguard.cfg
-proguard-project.txt
-
-#Other
+src/com/baseapp/eyeem/etc/EyeemAppSettings.java
+gen/*
+bin/*
 .DS_Store
-tmp
+.classpath
+.idea/
+*.iml
+*.iws
+*.log
+local.properties
+default.properties
+project.properties
+.project
+out/*
+/libs
+.settings/*
 
-# Gradle stuff
+# Gradle
 .gradle
-build/
+build
+
+# Crashlytics
+src/main/res/values/com_crashlytics_export_strings.xml
+src/main/assets/crashlytics-build.properties
+
+# this shows up when taking a dump (java heap dump)
+/captures
+
+# We generate changelog dynamically and send it to crashlytics
+CHANGELOG.md
+
+# Don't ignore code style, so it can be nicely shared across devs
+!.idea/codeStyleSettings.xml

@@ -31,6 +31,7 @@ public class ChooserActivity extends AppCompatActivity implements Toolbar.OnMenu
    @Bind(R.id.useHeader) Switch useHeader;
    @Bind(R.id.useLoadMore) Switch useLoadMore;
    @Bind(R.id.useOnItemClick) Switch useOnItemClick;
+   @Bind(R.id.useItemOffsetDecoration) Switch useItemOffsetDecoration;
    @Bind(R.id.layoutManager) Spinner layoutManager;
    @Bind(R.id.layoutManagerSpan) Spinner layoutManagerSpan;
 
@@ -66,6 +67,7 @@ public class ChooserActivity extends AppCompatActivity implements Toolbar.OnMenu
          useHeader.setChecked(config.useHeader);
          useLoadMore.setChecked(config.useLoadMore);
          useOnItemClick.setChecked(config.useOnItemClick);
+         useItemOffsetDecoration.setChecked(config.useItemOffsetDecoration);
          layoutManager.setSelection(config.layoutManager);
          layoutManagerSpan.setSelection(config.layoutManagerSpan - 2);
       }
@@ -75,10 +77,12 @@ public class ChooserActivity extends AppCompatActivity implements Toolbar.OnMenu
       useHeader.setOnCheckedChangeListener(this);
       useLoadMore.setOnCheckedChangeListener(this);
       useOnItemClick.setOnCheckedChangeListener(this);
+      useItemOffsetDecoration.setOnCheckedChangeListener(this);
 
       layoutManager.setOnItemSelectedListener(this);
       layoutManagerSpan.setOnItemSelectedListener(this);
-      layoutManagerSpan.setEnabled(config.layoutManager != 0);
+
+      syncEnabled();
 
    }
 
@@ -111,23 +115,34 @@ public class ChooserActivity extends AppCompatActivity implements Toolbar.OnMenu
          case R.id.useOnItemClick:
             config.useOnItemClick = isChecked;
             break;
+         case R.id.useItemOffsetDecoration:
+            config.useItemOffsetDecoration = isChecked;
+            break;
       }
+      syncEnabled();
    }
 
    @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
       switch (parent.getId()) {
          case R.id.layoutManager:
             config.layoutManager = position;
-            layoutManagerSpan.setEnabled(config.layoutManager != 0);
             break;
          case R.id.layoutManagerSpan:
             config.layoutManagerSpan = position + 2;
             break;
       }
+      syncEnabled();
    }
 
    @Override public void onNothingSelected(AdapterView<?> parent) {
       onItemSelected(parent, null, 0, 0);
+   }
+
+   private void syncEnabled(){
+      layoutManagerSpan.setEnabled(config.layoutManager != 0);
+      if (config.useSections) {
+         useItemOffsetDecoration.setChecked(false);
+      }
    }
 
    private static class Adapter extends ArrayAdapter<String> {
