@@ -13,10 +13,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.eyeem.recyclerviewtools.ItemOffsetDecoration;
 import com.eyeem.recyclerviewtools.LoadMoreOnScrollListener;
 import com.eyeem.recyclerviewtools.OnItemClickListener;
 import com.eyeem.recyclerviewtools.RecyclerViewTools;
+import com.eyeem.recyclerviewtools.StaggeredLayoutManagerUtils;
 import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
+import com.eyeem.recyclerviewtools.sample.data.Data;
 import com.eyeem.recyclerviewtools.sample.data.Photo;
 import com.squareup.picasso.Picasso;
 
@@ -54,8 +57,8 @@ public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemCl
       // SwipeRefreshLayout
       if (refresh != null && header != null) {
          Picasso.with(this)
-            .load(Photo.HEADER(getResources().getDisplayMetrics().widthPixels))
-            .fit().centerCrop().into(header);
+               .load(Photo.HEADER(getResources().getDisplayMetrics().widthPixels))
+               .fit().centerCrop().into(header);
 
          dismissRefresh(refresh);
       }
@@ -101,6 +104,24 @@ public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemCl
          wrapAdapter.setOnItemClickListener(recycler, this);
       }
 
+      if (config.useItemOffsetDecoration) {
+         float dpi = getResources().getDisplayMetrics().density;
+         int internalOffset = (int) dpi * 4;
+         int externalOffset = (int) dpi * 24;
+         recycler.addItemDecoration(new ItemOffsetDecoration(
+               // around the item views - similar to recyclerView.setPadding(...)
+               externalOffset,
+               externalOffset / 2,
+               externalOffset,
+               0,
+               // in-between views - similar to holder.itemView.setPadding(...)
+               internalOffset,
+               internalOffset,
+               internalOffset,
+               internalOffset,
+               true
+         ));
+      }
    }
 
    @Override public boolean onMenuItemClick(MenuItem item) {
@@ -112,8 +133,8 @@ public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemCl
          case R.id.menu_item_toggle_custom_view:
             item.setChecked(!item.isChecked());
             item.setIcon(item.isChecked() ?
-               R.drawable.ic_check_box_white_24dp :
-               R.drawable.ic_check_box_outline_blank_white_24dp);
+                  R.drawable.ic_check_box_white_24dp :
+                  R.drawable.ic_check_box_outline_blank_white_24dp);
             setCustomView(item.isChecked());
          default:
             return false;
@@ -122,6 +143,21 @@ public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemCl
 
    @Override public void onLoadMore(RecyclerView recyclerView) {
       toast("Load more");
+
+      recyclerView.postDelayed(new Runnable() {
+         @Override public void run() {
+
+            for (int i = 0; i < 5; i++) {
+               adapter.data.add(Data.newRandom(SampleActivity.this));
+            }
+
+            if (recycler.getLayoutManager() instanceof StaggeredGridLayoutManager) {
+               StaggeredLayoutManagerUtils.onItemChanged(recycler, 0);
+            }
+            adapter.notifyDataSetChanged();
+
+         }
+      }, 1000);
    }
 
    @Override
@@ -137,7 +173,7 @@ public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemCl
    private void setCustomView(boolean visible) {
       if (visible && customView == null) {
          customView = LayoutInflater.from(this)
-            .inflate(R.layout.custom_view, recycler, false);
+               .inflate(R.layout.custom_view, recycler, false);
       }
       wrapAdapter.setCustomView(visible ? customView : null);
       if (visible) {

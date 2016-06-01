@@ -73,6 +73,17 @@
                 android:paddingRight="24dp"
                 android:paddingTop="24dp"
                 android:text="useOnItemClick"/>
+
+            <Switch
+                android:id="@+id/useItemOffsetDecoration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="24dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp"
+                android:paddingTop="24dp"
+                android:text="useItemOffsetDecoration"/>
+
             <Spinner
                 android:id="@+id/layoutManager"
                 android:layout_width="match_parent"

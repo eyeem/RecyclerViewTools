@@ -14,6 +14,7 @@ public class Config implements Serializable {
    public boolean useHeader = false;
    public boolean useLoadMore = false;
    public boolean useOnItemClick = false;
+   public boolean useItemOffsetDecoration = false;
 
    public static final int LINEAR_LAYOUT_MANAGER = 0;
    public static final int GRID_LAYOUT_MANAGER = 1;
