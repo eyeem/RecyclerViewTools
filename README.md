@@ -19,7 +19,7 @@ dependencies {
 
     ... your other dependencies
 
-    compile 'com.eyeem.recyclerviewtools:library:0.1.0'
+    compile 'com.eyeem.recyclerviewtools:library:0.2.0'
 }
 ```
 
