@@ -2,6 +2,7 @@ package com.eyeem.recyclerviewtools;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 
 /**
  * Created by budius on 06.10.15.
@@ -31,47 +32,38 @@ public class RecyclerViewTools {
    }
 
    /**
-    * Scroll immediately to the given position with zero offset
+    * Check the several possible layout manager and executes a instant scroll to position with offset.
+    * That means that `offset` is only properly applied for:
+    * - LinearLayoutManager
+    * - GridLayoutManager
+    * - StaggeredGridLayoutManager
+    * and any LayoutManager that extends them.
     *
-    * @param recyclerView To be scrolled
-    * @param position     The adapter position to scroll to
+    * @param recyclerView recycler view to execute the scroll
+    * @param position     the adapter position to scroll to
+    * @param offset       the offset in pixels from the start edge of the recycler and the itemView
     */
-   public static void scrollToPosition(RecyclerView recyclerView, int position) {
-      scrollToPosition(recyclerView, position, 0, false);
-   }
-
-   /**
-    * Scroll immediately to the given position with offset
-    *
-    * @param recyclerView To be scrolled
-    * @param position     The adapter position to scroll to
-    * @param offset       The distance (in pixels) between the start edge of the item view and start edge of the RecyclerView
-    */
-   public static void scrollToPosition(RecyclerView recyclerView, int position, int offset) {
-      scrollToPosition(recyclerView, position, offset, false);
-   }
-
-   /**
-    * Scroll the recycler view
-    *
-    * @param recyclerView To be scrolled
-    * @param position     The adapter position to scroll to
-    * @param offset       The distance (in pixels) between the start edge of the item view and start edge of the RecyclerView
-    * @param smooth       true for smooth scroll; false to immediate scroll;
-    */
-   public static void scrollToPosition(RecyclerView recyclerView, int position, int offset, boolean smooth) {
-
-      if (smooth) {
-         recyclerView.smoothScrollToPosition(position);
-         return;
-      }
-
-      RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-      if (layoutManager instanceof LinearLayoutManager) {
-         LinearLayoutManager llm = (LinearLayoutManager) layoutManager;
-         llm.scrollToPositionWithOffset(position, offset);
+   public static void scrollToPositionWithOffset(RecyclerView recyclerView, int position, int offset) {
+      RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
+      if (lm instanceof LinearLayoutManager) { // GridLayoutManager extends LinearLayoutManager
+         ((LinearLayoutManager) lm).scrollToPositionWithOffset(position, offset);
+      } else if (lm instanceof StaggeredGridLayoutManager) {
+         ((StaggeredGridLayoutManager) lm).scrollToPositionWithOffset(position, offset);
       } else {
          recyclerView.scrollToPosition(position);
       }
    }
+
+   /**
+    * Currently this simply calls recyclerView.smoothScrollToPosition(position);
+    * But the API is already available and in the near future we'll try to code the `offset`
+    *
+    * @param recyclerView
+    * @param position
+    * @param offset
+    */
+   public static void smoothScrollToPositionWithOffset(RecyclerView recyclerView, int position, int offset) {
+      recyclerView.smoothScrollToPosition(position);
+   }
+
 }
