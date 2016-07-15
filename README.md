@@ -1,5 +1,5 @@
-# RecyclerViewTools
-Collection of tools for RecyclerView.
+# RecyclerViewTools 
+Collection of tools for RecyclerView. [ ![Download](https://api.bintray.com/packages/eyeem/maven/recyclerview-tools/images/download.svg) ](https://bintray.com/eyeem/maven/recyclerview-tools/_latestVersion)
 
 This collection was developed with two main goals: easy to code (very simple API) & robust (it really works).
 Includes:
@@ -19,7 +19,7 @@ dependencies {
 
     ... your other dependencies
 
-    compile 'com.eyeem.recyclerviewtools:library:0.3.0'
+    compile 'com.eyeem.recyclerviewtools:library:{latest}'
 }
 ```
 
