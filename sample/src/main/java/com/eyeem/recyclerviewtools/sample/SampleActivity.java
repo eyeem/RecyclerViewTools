@@ -69,6 +69,7 @@ public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemCl
          wrapAdapter = new WrapAdapter(adapter, new Sections());
       } else {
          wrapAdapter = new WrapAdapter(adapter);
+         wrapAdapter.setCustomViewBehavior(WrapAdapter.BEHAVIOR_ALLOW_HEADER_FOOTER);
       }
 
       // Layout manager
