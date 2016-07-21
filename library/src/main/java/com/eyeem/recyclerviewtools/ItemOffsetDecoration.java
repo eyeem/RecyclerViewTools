@@ -18,9 +18,16 @@ import com.eyeem.recyclerviewtools.adapter.WrapAdapter;
  */
 public class ItemOffsetDecoration extends RecyclerView.ItemDecoration {
 
+   /**
+    * this value is copied from WrapAdapter
+    * because I really don't wanna make the method `isInternalHolder(Holder)` public.
+    * So I can just here check against the mask used for special view types
+    */
+   private static final int MAIN_VIEW_TYPE_MASK = 0x40000000;
+
    private final Rect externalOffset;
    private final Rect internalOffset;
-   private final boolean disableHeaderSpacing;
+   private final boolean disableSpecialViewsSpacing;
 
    /**
     * Constructor where all internal and external item offsets are the same
@@ -47,12 +54,12 @@ public class ItemOffsetDecoration extends RecyclerView.ItemDecoration {
     *
     * @param externalOffset
     * @param internalOffset
-    * @param disableHeaderSpacing if header should have offset or should be all 0
+    * @param disableSpecialViewsSpacing if header, footer, sections or custom view should have zero spacing
     */
-   public ItemOffsetDecoration(Rect externalOffset, Rect internalOffset, boolean disableHeaderSpacing) {
+   public ItemOffsetDecoration(Rect externalOffset, Rect internalOffset, boolean disableSpecialViewsSpacing) {
       this.externalOffset = externalOffset;
       this.internalOffset = internalOffset;
-      this.disableHeaderSpacing = disableHeaderSpacing;
+      this.disableSpecialViewsSpacing = disableSpecialViewsSpacing;
    }
 
    /**
@@ -96,6 +103,21 @@ public class ItemOffsetDecoration extends RecyclerView.ItemDecoration {
          adapter = wrapAdapter.getWrapped();
       }
 
+      // make exception for wrapAdapter special view types
+      if (wrapAdapter != null) {
+         RecyclerView.ViewHolder vh = parent.getChildViewHolder(view);
+
+         // if it's a special view
+         if (vh.getItemViewType() > MAIN_VIEW_TYPE_MASK) {
+            if (disableSpecialViewsSpacing) {
+               outRect.set(0, 0, 0, 0);
+            } else {
+               outRect.set(externalOffset);
+            }
+            return;
+         }
+      }
+
       int numHeaders = (wrapAdapter == null) ? 0 : wrapAdapter.getHeaderCount();
       int adapterPosition = parent.getChildAdapterPosition(view);
       int offsetAdapterPosition = adapterPosition - numHeaders;
@@ -106,15 +128,6 @@ public class ItemOffsetDecoration extends RecyclerView.ItemDecoration {
          spanCount = ((GridLayoutManager) lm).getSpanCount();
       } else if (lm instanceof StaggeredGridLayoutManager) {
          spanCount = ((StaggeredGridLayoutManager) lm).getSpanCount();
-      }
-
-      if (adapterPosition < numHeaders) {
-         if (disableHeaderSpacing) {
-            outRect.set(0, 0, 0, 0);
-         } else {
-            outRect.set(externalOffset);
-         }
-         return;
       }
 
       final boolean isTop = offsetAdapterPosition < spanCount;

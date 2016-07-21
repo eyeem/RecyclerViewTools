@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link android.support.v7.widget.RecyclerView RecyclerView}.
  */
 public class WrapAdapter
-   extends RecyclerView.Adapter {
+      extends RecyclerView.Adapter {
 
    private static final int MAX_CACHE_SIZE = 666; // TODO: what's a sensible value?
 
@@ -37,7 +37,7 @@ public class WrapAdapter
    private static final int SECTION_VIEW_TYPE_MASK = 0x4000000 + MAIN_VIEW_TYPE_MASK;
    private static final long SECTION_ITEM_ID_MASK = 0x400000000000000L + MAIN_ITEM_ID_MASK;
 
-   private static final int CUSTOM_VIEW_TYPE = Integer.MAX_VALUE;
+   private static final int CUSTOM_VIEW_TYPE = 0x8000000 + MAIN_VIEW_TYPE_MASK;
 
    static final int NOT_A_SECTION = -1;
 
@@ -74,13 +74,15 @@ public class WrapAdapter
 
       int type;
 
-      if (customView != null) {
+      if (customView != null && customViewBehavior == BEHAVIOR_DEFAULT) {
          type = CUSTOM_VIEW_TYPE;
       } else if (isHeaderPosition(position)) {
          type = HEADER_VIEW_TYPE_MASK | headerTypes.get(getHeaders().get(position).hashCode());
       } else if (isFooterPosition(position)) {
          int footerPosition = position - getItemCount() + getFooterCount();
          type = FOOTER_VIEW_TYPE_MASK | footerTypes.get(getFooters().get(footerPosition).hashCode());
+      } else if (customView != null && customViewBehavior == BEHAVIOR_ALLOW_HEADER_FOOTER) {
+         type = CUSTOM_VIEW_TYPE;
       } else {
          int sectionPosition = getSectionIndex(position);
          if (sectionPosition != NOT_A_SECTION) {
@@ -102,13 +104,15 @@ public class WrapAdapter
 
       if (!hasStableIds()) {
          id = RecyclerView.NO_ID;
-      } else if (customView != null) {
+      } else if (customView != null && customViewBehavior == BEHAVIOR_DEFAULT) {
          id = RecyclerView.NO_ID;
       } else if (isHeaderPosition(position)) {
          id = HEADER_ITEM_ID_MASK | getHeaders().get(position).hashCode();
       } else if (isFooterPosition(position)) {
          int footerPosition = position - getItemCount() + getFooterCount();
          id = FOOTER_ITEM_ID_MASK | getFooters().get(footerPosition).hashCode();
+      } else if (customView != null && customViewBehavior == BEHAVIOR_ALLOW_HEADER_FOOTER) {
+         id = RecyclerView.NO_ID;
       } else {
          int sectionPosition = getSectionIndex(position);
          if (sectionPosition != NOT_A_SECTION) {
@@ -129,35 +133,32 @@ public class WrapAdapter
       RecyclerView.ViewHolder viewHolder;
 
       if (customView != null && viewType == CUSTOM_VIEW_TYPE) {
-         viewHolder = new HeaderFooterHolder(customView);
+         viewHolder = new CustomViewHolder(customView);
          StaggeredLayoutManagerInternalUtils.setFullWidthLayoutParams(parent, viewHolder);
          return viewHolder;
       }
 
-      boolean extra = false;
       if (isHeaderViewType(viewType)) {
-         extra = true;
          viewHolder = new HeaderFooterHolder(findViewByType(removeMask(viewType, HEADER_VIEW_TYPE_MASK), getHeaders(), headerTypes));
          StaggeredLayoutManagerInternalUtils.setFullWidthLayoutParams(parent, viewHolder);
       } else if (isFooterViewType(viewType)) {
-         extra = true;
          viewHolder = new HeaderFooterHolder(findViewByType(removeMask(viewType, FOOTER_VIEW_TYPE_MASK), getFooters(), footerTypes));
          StaggeredLayoutManagerInternalUtils.setFullWidthLayoutParams(parent, viewHolder);
       } else if (isSectionViewType(viewType)) {
-         extra = true;
          viewHolder = sections.onCreateSectionViewHolder(parent, removeMask(viewType, SECTION_VIEW_TYPE_MASK));
          StaggeredLayoutManagerInternalUtils.setFullWidthLayoutParams(parent, viewHolder);
       } else {
          viewHolder = wrapped.onCreateViewHolder(parent, viewType);
       }
-      bindOnItemClickListener(viewHolder, extra);
+      bindOnItemClickListener(viewHolder);
       return viewHolder;
    }
 
    @Override
    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-      if (holder instanceof HeaderFooterHolder) {
+      if (holder instanceof HeaderFooterHolder ||
+            holder instanceof CustomViewHolder) {
          return;
       }
 
@@ -170,30 +171,36 @@ public class WrapAdapter
 
    @Override
    public int getItemCount() {
-      if (customView != null) return 1;
-      else
+      if (customView != null) {
+         if (customViewBehavior == BEHAVIOR_DEFAULT) {
+            return 1;
+         } else {
+            return 1 + sections.getSectionCount() + getHeaderCount() + getFooterCount();
+         }
+      } else {
          return wrapped.getItemCount() + sections.getSectionCount() + getHeaderCount() + getFooterCount();
+      }
    }
 
    // extended adapter callbacks, most adapters don't use, but just for completeness
    // ==============================================================================================
    @Override
    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-      if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
+      if (isInternalHolder(holder))
          return;
       wrapped.onViewAttachedToWindow(holder);
    }
 
    @Override
    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-      if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
+      if (isInternalHolder(holder))
          return;
       wrapped.onViewDetachedFromWindow(holder);
    }
 
    @Override
    public void onViewRecycled(RecyclerView.ViewHolder holder) {
-      if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
+      if (isInternalHolder(holder))
          return;
       wrapped.onViewRecycled(holder);
    }
@@ -210,10 +217,14 @@ public class WrapAdapter
 
    @Override
    public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
-      if (holder instanceof HeaderFooterHolder || isSectionViewType(holder.getItemViewType()))
+      if (isInternalHolder(holder))
          return super.onFailedToRecycleView(holder);
       else
          return wrapped.onFailedToRecycleView(holder);
+   }
+
+   private boolean isInternalHolder(RecyclerView.ViewHolder holder) {
+      return holder.getItemViewType() > MAIN_VIEW_TYPE_MASK;
    }
 
    // OnItemClick handling
@@ -229,8 +240,8 @@ public class WrapAdapter
     * @param onItemClickListener the listener for the click events
     */
    public void setOnItemClickListener(
-      RecyclerView recyclerView,
-      OnItemClickListener onItemClickListener) {
+         RecyclerView recyclerView,
+         OnItemClickListener onItemClickListener) {
       setOnItemClickListener(recyclerView, onItemClickListener, true);
    }
 
@@ -243,16 +254,19 @@ public class WrapAdapter
     * @param ignoreExtras        true if it should ignore header, footer and sections; false otherwise
     */
    public void setOnItemClickListener(
-      RecyclerView recyclerView,
-      OnItemClickListener onItemClickListener,
-      boolean ignoreExtras) {
+         RecyclerView recyclerView,
+         OnItemClickListener onItemClickListener,
+         boolean ignoreExtras) {
       onItemClickListenerDetector = new OnItemClickListenerDetector(recyclerView, onItemClickListener, ignoreExtras);
    }
 
-   private void bindOnItemClickListener(RecyclerView.ViewHolder holder, boolean isExtra) {
+   private void bindOnItemClickListener(RecyclerView.ViewHolder holder) {
       if (onItemClickListenerDetector == null) return;
-      if (onItemClickListenerDetector.ignoreExtras && isExtra)
+      if (onItemClickListenerDetector.ignoreExtras && isInternalHolder(holder))
          return;
+
+      if (holder instanceof CustomViewHolder)
+         return; // we never handle CustomView click.
 
       holder.itemView.setOnClickListener(onItemClickListenerDetector);
    }
@@ -403,16 +417,53 @@ public class WrapAdapter
       }
    }
 
-   // Custom view (useful for empty states)
+   // Custom view (useful for empty/loading states)
    // ==============================================================================================
    private View customView;
 
+   /**
+    * Set a view to replace the contents of the wrapped adapter.
+    * This is useful to be used for different data states. For example `loading` or `empty`.
+    * Call this method with `null` to remove the custom view.
+    *
+    * @param view view to be displayed as the solely RecyclerView content
+    */
    public void setCustomView(View view) {
       // avoid calling notifyDataSetChanged if not really needed
       if (customView == null && view == null) return;
       if (customView != null && view != null && customView.equals(view)) return;
       customView = view;
       notifyDataSetChanged();
+   }
+
+   /**
+    * Default custom view behavior.
+    * Makes the WrapAdapter getCount() return 1.
+    */
+   public static final int BEHAVIOR_DEFAULT = 0;
+
+   /**
+    * Custom view behavior that allows showing of any added Header or Footer.
+    * This makes the WrapAdapter getCount() return 1 + getHeaderCount() + getFooterCount()
+    */
+   public static final int BEHAVIOR_ALLOW_HEADER_FOOTER = 1;
+   private int customViewBehavior = BEHAVIOR_DEFAULT;
+
+   /**
+    * Change the behavior of the custom view. Default is to overtake the whole RecyclerView.
+    * Call to `notifyDataSetChanged()` might be needed to reflect the new behavior.
+    *
+    * @param behavior BEHAVIOR_DEFAULT or BEHAVIOR_ALLOW_HEADER_FOOTER
+    */
+   public void setCustomViewBehavior(int behavior) {
+      if (customViewBehavior == behavior) return;
+      this.customViewBehavior = behavior;
+   }
+
+   private static class CustomViewHolder extends RecyclerView.ViewHolder {
+      public CustomViewHolder(View itemView) {
+         super(itemView);
+      }
    }
 
    // position conversion and caching for sections
@@ -593,6 +644,10 @@ public class WrapAdapter
 
       @Override
       public int getSpanSize(int position) {
+
+         if (customView != null) {
+            return spanCount; // custom take whole width
+         }
 
          if (isHeaderPosition(position)) {
             return spanCount; // header take the whole width
