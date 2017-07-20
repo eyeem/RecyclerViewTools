@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.eyeem.recyclerviewtools.adapter.SimpleSectionAdapter;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -35,7 +35,7 @@ public class Sections extends SimpleSectionAdapter<Sections.SectionHolder> {
    }
 
    static class SectionHolder extends RecyclerView.ViewHolder {
-      @Bind(R.id.text) TextView text;
+      @BindView(R.id.text) TextView text;
 
       SectionHolder(View view) {
          super(view);
