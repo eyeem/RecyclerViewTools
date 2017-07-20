@@ -30,7 +30,8 @@ dependencies {
     compile group: 'com.android.support', name: 'appcompat-v7', version: rootProject.ext.supportLibVersion
     compile group: 'com.android.support', name: 'cardview-v7', version: rootProject.ext.supportLibVersion
 
-    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.jakewharton:butterknife:8.7.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.7.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.actinarium.aligned:aligned:0.1'

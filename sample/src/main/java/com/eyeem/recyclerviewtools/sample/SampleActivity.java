@@ -23,7 +23,7 @@ import com.eyeem.recyclerviewtools.sample.data.Data;
 import com.eyeem.recyclerviewtools.sample.data.Photo;
 import com.squareup.picasso.Picasso;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -31,10 +31,10 @@ import butterknife.ButterKnife;
  */
 public class SampleActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener, LoadMoreOnScrollListener.Listener, OnItemClickListener {
 
-   @Bind(R.id.toolbar) Toolbar toolbar;
-   @Bind(R.id.recycler) RecyclerView recycler;
-   @Nullable @Bind(R.id.refresh) SwipeRefreshLayout refresh;
-   @Nullable @Bind(R.id.header_image) ImageView header;
+   @BindView(R.id.toolbar) Toolbar toolbar;
+   @BindView(R.id.recycler) RecyclerView recycler;
+   @Nullable @BindView(R.id.refresh) SwipeRefreshLayout refresh;
+   @Nullable @BindView(R.id.header_image) ImageView header;
 
    private View customView;
    private DataAdapter adapter;

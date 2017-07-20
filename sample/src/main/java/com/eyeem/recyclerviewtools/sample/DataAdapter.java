@@ -17,7 +17,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import butterknife.Bind;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -65,8 +65,8 @@ public class DataAdapter extends ListAdapter<Data, DataAdapter.BaseHolder> {
    }
 
    public static abstract class BaseHolder extends RecyclerView.ViewHolder {
-      @Bind(R.id.profile) protected CircleImageView profile;
-      @Bind(R.id.name) protected TextView name;
+      @BindView(R.id.profile) protected CircleImageView profile;
+      @BindView(R.id.name) protected TextView name;
 
       public BaseHolder(View itemView) {
          super(itemView);
@@ -92,7 +92,7 @@ public class DataAdapter extends ListAdapter<Data, DataAdapter.BaseHolder> {
 
    static class ImageHolder extends BaseHolder {
 
-      @Bind(R.id.photo) ImageView photo;
+      @BindView(R.id.photo) ImageView photo;
       final int size;
 
       public ImageHolder(View itemView) {
@@ -114,7 +114,7 @@ public class DataAdapter extends ListAdapter<Data, DataAdapter.BaseHolder> {
 
    static class TextHolder extends BaseHolder {
 
-      @Bind(R.id.text) TextView text;
+      @BindView(R.id.text) TextView text;
 
       public TextHolder(View itemView) {
          super(itemView);
