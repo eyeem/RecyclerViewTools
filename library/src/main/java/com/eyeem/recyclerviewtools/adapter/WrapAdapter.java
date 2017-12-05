@@ -322,6 +322,15 @@ public class WrapAdapter
       }
    }
 
+   public void addHeader(int headerPosition, View v) {
+      if (!getHeaders().contains(v)) {
+         setDefaultLayoutParams(v);
+         getHeaders().add(headerPosition, v);
+         headerTypes.put(v.hashCode(), headerViewTypeGenerator.incrementAndGet());
+         clearCache();
+      }
+   }
+
    public void removeHeader(View v, boolean autoNotify) {
       if (headers == null) return;
       if (getHeaders().contains(v)) {
